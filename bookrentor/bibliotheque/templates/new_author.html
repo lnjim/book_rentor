@@ -1,0 +1,6 @@
+{% block content %} {% load crispy_forms_tags %}
+<form method="POST">
+  {% csrf_token %} {{ new_author_form|crispy }}
+  <button class="btn btn-primary" type="submit">Register</button>
+</form>
+{% endblock %}

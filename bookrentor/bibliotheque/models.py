@@ -11,8 +11,6 @@ class Genre(models.Model):
 class Author(models.Model):
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
-    date_of_birth = models.DateField(null=True, blank=True)
-    date_of_death = models.DateField('Died', null=True, blank=True)
 
     class Meta:
         ordering = ['last_name', 'first_name']
@@ -31,14 +29,17 @@ class Book(models.Model):
     author = models.ForeignKey('Author', on_delete=models.SET_NULL, null=True)
     editor = models.ForeignKey('Editor', on_delete=models.SET_NULL, null=True)
     summary = models.TextField(max_length=1000, help_text='Enter a brief description of the book')
-    genre = models.ManyToManyField(Genre, help_text='Select a genre for this book')
+    genre = models.ForeignKey('Genre', on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
         return self.title
 
+class LibraryLocation(models.Model):
+    name = models.CharField(max_length=200)
+
 class Library(models.Model):
     name = models.CharField(max_length=200)
-    location = models.CharField(max_length=200)
+    location = models.ForeignKey('LibraryLocation', on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
         return self.name
@@ -50,3 +51,30 @@ class BooksInLibrary(models.Model):
 
     def __str__(self):
         return f'{self.book} in {self.library}'
+
+class Rent(models.Model):
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    book = models.ForeignKey('Book', on_delete=models.SET_NULL, null=True)
+    library = models.ForeignKey('Library', on_delete=models.SET_NULL, null=True)
+    rent_date = models.DateField()
+    return_date = models.DateField()
+    is_returned = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f'{self.user} rented {self.book} from {self.library} on {self.date}'
+
+class ReadingGroup(models.Model):
+    name = models.CharField(max_length=200)
+    book = models.ForeignKey('Book', on_delete=models.SET_NULL, null=True)
+    library = models.ForeignKey('Library', on_delete=models.SET_NULL, null=True)
+    date = models.DateField()
+
+    def __str__(self):
+        return f'{self.name} reading {self.book} in {self.library} on {self.date}'
+
+class ReadingGroupMember(models.Model):
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    group = models.ForeignKey('ReadingGroup', on_delete=models.SET_NULL, null=True)
+
+    def __str__(self):
+        return f'{self.user} is a member of {self.group}'

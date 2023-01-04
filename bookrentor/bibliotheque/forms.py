@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
+from .models import Genre, Editor, Author, Book, Library, BooksInLibrary
 
 class NewUserForm(UserCreationForm):
     email = forms.EmailField(required=True)
@@ -25,21 +26,22 @@ class NewEditorForm(forms.Form):
 class NewAuthorForm(forms.Form):
     first_name = forms.CharField(max_length=100)
     last_name = forms.CharField(max_length=100)
-    date_of_birth = forms.DateField(required=False)
-    date_of_death = forms.DateField(required=False)
 
 class NewBookForm(forms.Form):
     title = forms.CharField(max_length=200)
-    author = forms.ChoiceField()
-    editor = forms.ChoiceField()
+    author = forms.ModelChoiceField(queryset=Author.objects.all())
+    editor = forms.ModelChoiceField(queryset=Editor.objects.all())
     summary = forms.CharField(max_length=1000)
-    genre = forms.ChoiceField()
+    genre = forms.ModelChoiceField(queryset=Genre.objects.all())
+
+class NewLibraryLocationForm(forms.Form):
+    name = forms.CharField(max_length=200)
 
 class NewLibraryForm(forms.Form):
     name = forms.CharField(max_length=200)
     location = forms.CharField(max_length=200)
 
 class NewBooksInLibraryForm(forms.Form):
-    book = forms.ChoiceField()
-    library = forms.ChoiceField()
+    book = forms.ModelChoiceField(queryset=Book.objects.all())
+    library = forms.ModelChoiceField(queryset=Library.objects.all())
     quantity = forms.IntegerField()

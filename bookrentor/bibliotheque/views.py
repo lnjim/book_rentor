@@ -75,3 +75,33 @@ def new_genre(request):
             return redirect("home")
     form = NewGenreForm()
     return render(request=request, template_name="new_genre.html", context={"new_genre_form":form})
+
+def new_editor(request):
+    if request.method == 'POST':
+        form = NewEditorForm(request.POST)
+        if form.is_valid():
+            editor = Editor.objects.create(name=form.cleaned_data['name'])
+            editor.save()
+            return redirect("home")
+    form = NewEditorForm()
+    return render(request=request, template_name="new_editor.html", context={"new_editor_form":form})
+
+def new_author(request):
+    if request.method == 'POST':
+        form = NewAuthorForm(request.POST)
+        if form.is_valid():
+            author = Author.objects.create(first_name=form.cleaned_data['first_name'], last_name=form.cleaned_data['last_name'])
+            author.save()
+            return redirect("home")
+    form = NewAuthorForm()
+    return render(request=request, template_name="new_author.html", context={"new_author_form":form})
+
+def new_book(request):
+    if request.method == 'POST':
+        form = NewBookForm(request.POST)
+        if form.is_valid():
+            book = Book.objects.create(title=form.cleaned_data['title'], genre=form.cleaned_data['genre'], editor=form.cleaned_data['editor'], author=form.cleaned_data['author'], summary=form.cleaned_data['summary'])
+            book.save()
+            return redirect("home")
+    form = NewBookForm()
+    return render(request=request, template_name="new_book.html", context={"new_book_form":form})
