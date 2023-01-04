@@ -1,16 +1,10 @@
 <div>
   <!-- Home page welcoming logged in user -->
-  <h1>Welcome Libraire {{ user.username }}!</h1>
+  <h1>Welcome Client {{ user.username }}!</h1>
   <!-- display user group -->
   <p>You are a {{ user.groups.all.0.name }}.</p>
   {% if user.is_authenticated %}      
   <!-- redirect to logout page -->
-  <div>
-    <a href="{% url 'logout' %}">Logout</a>
-  </div>
-  <!-- link to new genre page -->
-  <div>
-    <a href="{% url 'new_genre' %}">Add a new genre</a>
-  </div>
+  <a href="{% url 'logout' %}">Logout</a>
   {% endif %}
 </div>

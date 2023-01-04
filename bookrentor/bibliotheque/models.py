@@ -17,9 +17,6 @@ class Author(models.Model):
     class Meta:
         ordering = ['last_name', 'first_name']
 
-    def get_absolute_url(self):
-        return reverse('author-detail', args=[str(self.id)])
-
     def __str__(self):
         return f'{self.last_name}, {self.first_name}'
 
@@ -38,3 +35,18 @@ class Book(models.Model):
 
     def __str__(self):
         return self.title
+
+class Library(models.Model):
+    name = models.CharField(max_length=200)
+    location = models.CharField(max_length=200)
+
+    def __str__(self):
+        return self.name
+
+class BooksInLibrary(models.Model):
+    book = models.ForeignKey('Book', on_delete=models.SET_NULL, null=True)
+    library = models.ForeignKey('Library', on_delete=models.SET_NULL, null=True)
+    quantity = models.IntegerField()
+
+    def __str__(self):
+        return f'{self.book} in {self.library}'
