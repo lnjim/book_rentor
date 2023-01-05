@@ -37,6 +37,9 @@ class Book(models.Model):
 class LibraryLocation(models.Model):
     name = models.CharField(max_length=200)
 
+    def __str__(self):
+        return self.name
+
 class Library(models.Model):
     name = models.CharField(max_length=200)
     location = models.ForeignKey('LibraryLocation', on_delete=models.SET_NULL, null=True)
@@ -68,6 +71,7 @@ class ReadingGroup(models.Model):
     book = models.ForeignKey('Book', on_delete=models.SET_NULL, null=True)
     library = models.ForeignKey('Library', on_delete=models.SET_NULL, null=True)
     date = models.DateField()
+    limit = models.IntegerField(default=10)
 
     def __str__(self):
         return f'{self.name} reading {self.book} in {self.library} on {self.date}'
@@ -75,6 +79,7 @@ class ReadingGroup(models.Model):
 class ReadingGroupMember(models.Model):
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     group = models.ForeignKey('ReadingGroup', on_delete=models.SET_NULL, null=True)
+    accepted = models.BooleanField(default=False)
 
     def __str__(self):
         return f'{self.user} is a member of {self.group}'

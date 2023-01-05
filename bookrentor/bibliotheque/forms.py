@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from .models import Genre, Editor, Author, Book, Library, BooksInLibrary
+from .models import Genre, Editor, Author, Book, Library, BooksInLibrary, LibraryLocation
 
 class NewUserForm(UserCreationForm):
     email = forms.EmailField(required=True)
@@ -39,7 +39,7 @@ class NewLibraryLocationForm(forms.Form):
 
 class NewLibraryForm(forms.Form):
     name = forms.CharField(max_length=200)
-    location = forms.CharField(max_length=200)
+    location = forms.ModelChoiceField(queryset=LibraryLocation.objects.all())
 
 class NewBooksInLibraryForm(forms.Form):
     book = forms.ModelChoiceField(queryset=Book.objects.all())

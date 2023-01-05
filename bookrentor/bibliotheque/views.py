@@ -6,17 +6,16 @@ from django.http import HttpResponse
 from django.contrib.auth.forms import AuthenticationForm
 import pdb
 from django.contrib.auth.models import Group
-from .forms import NewUserForm, NewGenreForm, NewEditorForm, NewAuthorForm, NewBookForm, NewLibraryForm, NewBooksInLibraryForm
-from .models import Genre, Editor, Author, Book, Library, BooksInLibrary
+from .forms import NewUserForm, NewGenreForm, NewEditorForm, NewAuthorForm, NewBookForm, NewLibraryForm, NewBooksInLibraryForm, NewLibraryLocationForm
+from .models import Genre, Editor, Author, Book, Library, BooksInLibrary, LibraryLocation
 
 def index(request):
     return render(request=request, template_name="index.html")
 
 def home(request):
+    if not request.user.is_authenticated:
+        return redirect("index")
     return render(request=request, template_name="home.html", context={"user":request.user})
-
-def user_home(request):
-    return render(request=request, template_name="user_home.html", context={"user":request.user})
 
 def register(request):
     if request.method == 'POST':
@@ -24,13 +23,8 @@ def register(request):
         if form.is_valid():
             user = form.save()
             login(request, user)
-            if 'is_librarian' in request.POST:
-                if request.POST['is_librarian'] == 'on':
-                    group = Group.objects.get(name='book_seller')
-                    user.groups.add(group)
-            else:
-                group = Group.objects.get(name='user')
-                user.groups.add(group)
+            group = Group.objects.get(name='book_seller')
+            user.groups.add(group)
             messages.success(request, "Registration successful.")
             if user.groups.filter(name='book_seller').exists():
                 return redirect("home")
@@ -67,6 +61,8 @@ def logout_user(request):
     return redirect("index")
 
 def new_genre(request):
+    if not request.user.is_authenticated:
+        return redirect("index")
     if request.method == 'POST':
         form = NewGenreForm(request.POST)
         if form.is_valid():
@@ -77,6 +73,8 @@ def new_genre(request):
     return render(request=request, template_name="new_genre.html", context={"new_genre_form":form})
 
 def new_editor(request):
+    if not request.user.is_authenticated:
+        return redirect("index")
     if request.method == 'POST':
         form = NewEditorForm(request.POST)
         if form.is_valid():
@@ -87,6 +85,8 @@ def new_editor(request):
     return render(request=request, template_name="new_editor.html", context={"new_editor_form":form})
 
 def new_author(request):
+    if not request.user.is_authenticated:
+        return redirect("index")
     if request.method == 'POST':
         form = NewAuthorForm(request.POST)
         if form.is_valid():
@@ -97,6 +97,8 @@ def new_author(request):
     return render(request=request, template_name="new_author.html", context={"new_author_form":form})
 
 def new_book(request):
+    if not request.user.is_authenticated:
+        return redirect("index")
     if request.method == 'POST':
         form = NewBookForm(request.POST)
         if form.is_valid():
@@ -105,3 +107,27 @@ def new_book(request):
             return redirect("home")
     form = NewBookForm()
     return render(request=request, template_name="new_book.html", context={"new_book_form":form})
+
+def new_library_location(request):
+    if not request.user.is_authenticated:
+        return redirect("index")
+    if request.method == 'POST':
+        form = NewLibraryLocationForm(request.POST)
+        if form.is_valid():
+            location = LibraryLocation.objects.create(name=form.cleaned_data['name'])
+            location.save()
+            return redirect("home")
+    form = NewLibraryLocationForm()
+    return render(request=request, template_name="new_library_location.html", context={"new_library_location_form":form})
+
+def new_library(request):
+    if not request.user.is_authenticated:
+        return redirect("index")
+    if request.method == 'POST':
+        form = NewLibraryForm(request.POST)
+        if form.is_valid():
+            library = Library.objects.create(name=form.cleaned_data['name'], location=form.cleaned_data['location'])
+            library.save()
+            return redirect("home")
+    form = NewLibraryForm()
+    return render(request=request, template_name="new_library.html", context={"new_library_form":form})

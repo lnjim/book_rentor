@@ -2,16 +2,11 @@
 
 {% load crispy_forms_tags %}     
 <div class="container py-5">
-    <h1>Register</h1>
+    <h1>Register BookSeller</h1>
     <p>Register a new account</p>
     <form method="post">
         {% csrf_token %}
         {{ register_form|crispy }}
-        <!-- add checkbox to select if user is a librarian -->
-        <div class="form-group">
-            <label for="is_librarian">Are you a librarian?</label>
-            <input type="checkbox" name="is_librarian" id="is_librarian" />
-        </div>
         <button class="btn btn-primary" type="submit">Register</button>
     </form>
     <p>
