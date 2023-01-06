@@ -1,0 +1,17 @@
+<h1>Library {{ library.name }}</h1>
+<!-- display books in library -->
+<div>
+  <h2>Books in library</h2>
+  {% for book_in_library in books_in_library %}
+  <div>
+    {{ book_in_library.book.title }}
+    {{ book_in_library.book.id }}
+    <form action="{% url 'rent_book' library.id book_in_library.id %}" method="post">
+      {% csrf_token %}
+      <input type="hidden" name="book_in_library_id" value="{{ book_in_library.id }}">
+      <input type="hidden" name="library_id" value="{{ library.id }}">
+      <input type="submit" value="Rent">
+    </form>
+  </div>
+  {% endfor %}
+</div>

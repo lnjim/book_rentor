@@ -6,7 +6,7 @@ from django.http import HttpResponse
 from django.contrib.auth.forms import AuthenticationForm
 import pdb
 from django.contrib.auth.models import Group
-from .forms import NewUserForm, NewGenreForm, NewEditorForm, NewAuthorForm, NewBookForm, NewLibraryForm, NewBooksInLibraryForm, NewLibraryLocationForm
+from .forms import NewUserForm, NewGenreForm, NewEditorForm, NewAuthorForm, NewBookForm, NewLibraryForm, NewBookInLibraryForm, NewLibraryLocationForm
 from .models import Genre, Editor, Author, Book, Library, BooksInLibrary, LibraryLocation
 
 def index(request):
@@ -28,8 +28,6 @@ def register(request):
             messages.success(request, "Registration successful.")
             if user.groups.filter(name='book_seller').exists():
                 return redirect("home")
-            elif user.groups.filter(name='user').exists():
-                return redirect("user_home")
         raise ValueError("Invalid form")
     form = NewUserForm()
     return render (request=request, template_name="register.html", context={"register_form":form})
@@ -42,12 +40,10 @@ def login_user(request):
             password = form.cleaned_data.get('password')
             user = authenticate(username=username, password=password)
             if user is not None:
-                login(request, user)
-                messages.info(request, f"You are now logged in as {username}.")
                 if user.groups.filter(name='book_seller').exists():
+                    login(request, user)
+                    messages.info(request, f"You are now logged in as {username}.")
                     return redirect("home")
-                elif user.groups.filter(name='user').exists():
-                    return redirect("user_home")
             else:
                 messages.error(request, "Invalid username or password.")
         else:
@@ -131,3 +127,22 @@ def new_library(request):
             return redirect("home")
     form = NewLibraryForm()
     return render(request=request, template_name="new_library.html", context={"new_library_form":form})
+
+def new_book_in_library(request):
+    if not request.user.is_authenticated:
+        return redirect("index")
+    if request.method == 'POST':
+        form = NewBookInLibraryForm(request.POST)
+        if form.is_valid():
+            book_in_library = BooksInLibrary.objects.create(book=form.cleaned_data['book'], library=form.cleaned_data['library'], quantity=form.cleaned_data['quantity'])
+            book_in_library.save()
+            return redirect("home")
+    form = NewBookInLibraryForm()
+    return render(request=request, template_name="new_book_in_library.html", context={"new_book_in_library_form":form})
+
+# def library_detail(request, library_id):
+#     if not request.user.is_authenticated:
+#         return redirect("index")
+#     library = Library.objects.get(id=library_id)
+#     books_in_library = BooksInLibrary.objects.filter(library=library)
+#     return render(request=request, template_name="library_detail.html", context={"library":library, "books_in_library":books_in_library})

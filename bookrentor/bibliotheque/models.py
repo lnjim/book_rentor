@@ -59,9 +59,11 @@ class Rent(models.Model):
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     book = models.ForeignKey('Book', on_delete=models.SET_NULL, null=True)
     library = models.ForeignKey('Library', on_delete=models.SET_NULL, null=True)
+    accepted = models.BooleanField(default=False)
     rent_date = models.DateField()
     return_date = models.DateField()
     is_returned = models.BooleanField(default=False)
+
 
     def __str__(self):
         return f'{self.user} rented {self.book} from {self.library} on {self.date}'

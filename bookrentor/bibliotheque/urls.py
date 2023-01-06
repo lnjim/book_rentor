@@ -14,4 +14,6 @@ urlpatterns = [
     path('new_book/', views.new_book, name='new_book'),
     path('new_library_location/', views.new_library_location, name='new_library_location'),
     path('new_library/', views.new_library, name='new_library'),
+    path('new_book_in_library/', views.new_book_in_library, name='new_book_in_library'),
+    # path('<int:library_id>/detail', views.library_detail, name='library_detail'),
 ]

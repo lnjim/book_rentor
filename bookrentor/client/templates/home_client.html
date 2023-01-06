@@ -5,6 +5,12 @@
   <p>You are a {{ user.groups.all.0.name }}.</p>
   {% if user.is_authenticated %}
   <!-- redirect to logout page -->
-  <a href="{% url 'logout_client' %}">Logout</a>
+  <div>
+    <a href="{% url 'logout_client' %}">Logout</a>
+  </div>
+  <!-- link to library list page -->
+  <div>
+    <a href="{% url 'library_list' %}">View Libraries</a>
+  </div>
   {% endif %}
 </div>

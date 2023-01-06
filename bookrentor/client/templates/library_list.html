@@ -1,0 +1,9 @@
+<div>
+  <!-- loop through all libraries -->
+  {% for library in libraries %}
+  <!-- display link to library detail page -->
+  <div>
+    <a href="{% url 'library_detail' library.id %}">{{ library.name }}</a>
+  </div>
+  {% endfor %}
+</div>

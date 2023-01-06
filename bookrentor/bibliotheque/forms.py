@@ -41,7 +41,7 @@ class NewLibraryForm(forms.Form):
     name = forms.CharField(max_length=200)
     location = forms.ModelChoiceField(queryset=LibraryLocation.objects.all())
 
-class NewBooksInLibraryForm(forms.Form):
+class NewBookInLibraryForm(forms.Form):
     book = forms.ModelChoiceField(queryset=Book.objects.all())
     library = forms.ModelChoiceField(queryset=Library.objects.all())
     quantity = forms.IntegerField()
