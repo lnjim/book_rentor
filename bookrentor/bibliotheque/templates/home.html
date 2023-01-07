@@ -1,3 +1,7 @@
+{% load bootstrap4 %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+{% include 'messages.html' %}
 <div>
   <!-- Home page welcoming logged in user -->
   <h1>Welcome Libraire {{ user.username }}!</h1>
@@ -35,6 +39,14 @@
   <!-- link to new book in library page -->
   <div>
     <a href="{% url 'new_book_in_library' %}">Add a new book in library</a>
+  </div>
+  <!-- link to my libraries page -->
+  <div>
+    <a href="{% url 'my_libraries' %}">View my libraries</a>
+  </div>
+  <!-- link to pending requests page -->
+  <div>
+    <a href="{% url 'pending_rent_requests' %}">View pending requests</a>
   </div>
   {% endif %}
 </div>

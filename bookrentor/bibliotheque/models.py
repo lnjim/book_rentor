@@ -43,6 +43,7 @@ class LibraryLocation(models.Model):
 class Library(models.Model):
     name = models.CharField(max_length=200)
     location = models.ForeignKey('LibraryLocation', on_delete=models.SET_NULL, null=True)
+    owner = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
         return self.name
@@ -56,17 +57,21 @@ class BooksInLibrary(models.Model):
         return f'{self.book} in {self.library}'
 
 class Rent(models.Model):
+    class RentStatus(models.TextChoices):
+        PENDING = 'PENDING', 'Pending'
+        ACCEPTED = 'ACCEPTED', 'Accepted'
+        REJECTED = 'REJECTED', 'Rejected'
+        RETURNED = 'RETURNED', 'Returned'
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     book = models.ForeignKey('Book', on_delete=models.SET_NULL, null=True)
     library = models.ForeignKey('Library', on_delete=models.SET_NULL, null=True)
-    accepted = models.BooleanField(default=False)
+    quantity = models.IntegerField()
+    status = models.CharField(default=RentStatus.PENDING, max_length=10, choices=RentStatus.choices)
     rent_date = models.DateField()
     return_date = models.DateField()
-    is_returned = models.BooleanField(default=False)
-
 
     def __str__(self):
-        return f'{self.user} rented {self.book} from {self.library} on {self.date}'
+        return f'{self.user} rented {self.book} from {self.library} on {self.rent_date}'
 
 class ReadingGroup(models.Model):
     name = models.CharField(max_length=200)
@@ -79,9 +84,13 @@ class ReadingGroup(models.Model):
         return f'{self.name} reading {self.book} in {self.library} on {self.date}'
 
 class ReadingGroupMember(models.Model):
+    class MemberStatus(models.TextChoices):
+        PENDING = 'PENDING', 'Pending'
+        ACCEPTED = 'ACCEPTED', 'Accepted'
+        REJECTED = 'REJECTED', 'Rejected'
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     group = models.ForeignKey('ReadingGroup', on_delete=models.SET_NULL, null=True)
-    accepted = models.BooleanField(default=False)
+    status = models.CharField(default=MemberStatus.PENDING, max_length=10, choices=MemberStatus.choices)
 
     def __str__(self):
         return f'{self.user} is a member of {self.group}'

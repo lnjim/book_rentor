@@ -6,6 +6,8 @@ from django.contrib import messages
 from django.contrib.auth.forms import AuthenticationForm
 from bibliotheque.models import Genre, Editor, Author, Book, Library, BooksInLibrary, LibraryLocation, Rent
 from .forms import NewRentBookForm
+import datetime
+import pdb
 
 def index_client(request):
     return render(request=request, template_name="index_client.html")
@@ -48,7 +50,7 @@ def login_client(request):
         else:
             messages.error(request, "Invalid username or password.")
     form = AuthenticationForm()
-    return render(request=request, template_name="login.html", context={"login_form":form})
+    return render(request=request, template_name="login_client.html", context={"login_form":form})
 
 def logout_client(request):
     logout(request)
@@ -73,10 +75,17 @@ def rent_book(request, library_id, book_id):
     if request.method == 'POST':
         form = NewRentBookForm(request.POST)
         if form.is_valid():
-            book = form.cleaned_data.get('book')
-            library = form.cleaned_data.get('library')
-            quantity = form.cleaned_data.get('quantity')
-            rent = Rent.objects.create(user=request.user, book=book, library=library, quantity=quantity)
+            if form.cleaned_data.get('rent_date') < datetime.date.today() or form.cleaned_data.get('return_date') < form.cleaned_data.get('rent_date'):
+                messages.error(request, "start date is before today's date or return date is before start date")
+                return redirect("home_client")
+            rent = Rent.objects.create(
+                user=request.user,
+                book=Book.objects.get(id=book_id),
+                library=Library.objects.get(id=library_id),
+                quantity=form.cleaned_data.get('quantity'),
+                rent_date=form.cleaned_data.get('rent_date'),
+                return_date=form.cleaned_data.get('return_date'),
+            )
             rent.save()
             messages.success(request, "Rent successful.")
             return redirect("home_client")

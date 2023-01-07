@@ -6,7 +6,7 @@
   <div>
     {{ book_in_library.book.title }}
     {{ book_in_library.book.id }}
-    <form action="{% url 'rent_book' library.id book_in_library.id %}" method="post">
+    <form action="{% url 'rent_book' library.id book_in_library.book.id %}" method="post">
       {% csrf_token %}
       <input type="hidden" name="book_in_library_id" value="{{ book_in_library.id }}">
       <input type="hidden" name="library_id" value="{{ library.id }}">

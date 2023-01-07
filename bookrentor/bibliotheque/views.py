@@ -7,7 +7,7 @@ from django.contrib.auth.forms import AuthenticationForm
 import pdb
 from django.contrib.auth.models import Group
 from .forms import NewUserForm, NewGenreForm, NewEditorForm, NewAuthorForm, NewBookForm, NewLibraryForm, NewBookInLibraryForm, NewLibraryLocationForm
-from .models import Genre, Editor, Author, Book, Library, BooksInLibrary, LibraryLocation
+from .models import Genre, Editor, Author, Book, Library, BooksInLibrary, LibraryLocation, Rent
 
 def index(request):
     return render(request=request, template_name="index.html")
@@ -122,7 +122,7 @@ def new_library(request):
     if request.method == 'POST':
         form = NewLibraryForm(request.POST)
         if form.is_valid():
-            library = Library.objects.create(name=form.cleaned_data['name'], location=form.cleaned_data['location'])
+            library = Library.objects.create(name=form.cleaned_data['name'], location=form.cleaned_data['location'], owner=request.user)
             library.save()
             return redirect("home")
     form = NewLibraryForm()
@@ -140,9 +140,21 @@ def new_book_in_library(request):
     form = NewBookInLibraryForm()
     return render(request=request, template_name="new_book_in_library.html", context={"new_book_in_library_form":form})
 
-# def library_detail(request, library_id):
-#     if not request.user.is_authenticated:
-#         return redirect("index")
-#     library = Library.objects.get(id=library_id)
-#     books_in_library = BooksInLibrary.objects.filter(library=library)
-#     return render(request=request, template_name="library_detail.html", context={"library":library, "books_in_library":books_in_library})
+def my_libraries(request):
+    if not request.user.is_authenticated:
+        return redirect("index")
+    libraries = Library.objects.filter(owner=request.user)
+    return render(request=request, template_name="my_libraries.html", context={"libraries":libraries})
+
+def library(request, library_id):
+    if not request.user.is_authenticated:
+        return redirect("index")
+    library = Library.objects.get(id=library_id)
+    books = BooksInLibrary.objects.filter(library=library)
+    return render(request=request, template_name="library.html", context={"library":library, "books":books})
+
+def pending_rent_requests(request):
+    if not request.user.is_authenticated:
+        return redirect("index")
+    rent_requests = Rent.objects.filter(library__owner=request.user, status='PENDING')
+    return render(request=request, template_name="pending_rent_requests.html", context={"rent_requests":rent_requests})

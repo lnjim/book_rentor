@@ -1,0 +1,13 @@
+<div>
+  <h1>
+    {{ library.name }}
+  </h1>
+  
+  <!-- loop through all books -->
+  {% for book in books %}
+  <!-- display link to book detail page -->
+  <div>
+    <p>{{ book.book }}</p>
+  </div>
+  {% endfor %}
+</div>

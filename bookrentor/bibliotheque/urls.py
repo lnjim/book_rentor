@@ -15,5 +15,7 @@ urlpatterns = [
     path('new_library_location/', views.new_library_location, name='new_library_location'),
     path('new_library/', views.new_library, name='new_library'),
     path('new_book_in_library/', views.new_book_in_library, name='new_book_in_library'),
-    # path('<int:library_id>/detail', views.library_detail, name='library_detail'),
+    path('my_libraries/', views.my_libraries, name='my_libraries'),
+    path('my_libraries/<int:library_id>/', views.library, name='library'),
+    path('pending_rent_requests/', views.pending_rent_requests, name='pending_rent_requests'),
 ]
