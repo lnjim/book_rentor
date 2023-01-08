@@ -13,10 +13,10 @@ def index_client(request):
     return render(request=request, template_name="index_client.html")
 
 def home_client(request):
-    # redirect to index if user is not logged in
     if not request.user.is_authenticated:
         return redirect("index_client")
-    return render(request=request, template_name="home_client.html", context={"user":request.user})
+    books_rented = Rent.objects.filter(user=request.user, status="ACCEPTED")
+    return render(request=request, template_name="home_client.html", context={"user":request.user, "books_rented":books_rented})
 
 def register_client(request):
     if request.method == 'POST':
@@ -77,7 +77,11 @@ def rent_book(request, library_id, book_id):
         if form.is_valid():
             if form.cleaned_data.get('rent_date') < datetime.date.today() or form.cleaned_data.get('return_date') < form.cleaned_data.get('rent_date'):
                 messages.error(request, "start date is before today's date or return date is before start date")
-                return redirect("home_client")
+                return redirect("rent_book", library_id=library_id, book_id=book_id)
+            # check if user has already rented this book
+            if Rent.objects.filter(user=request.user, book=Book.objects.get(id=book_id), library=Library.objects.get(id=library_id), status='PENDING').exists():
+                messages.error(request, "You have already made a rent request for this book.")
+                return redirect("rent_book", library_id=library_id, book_id=book_id)
             rent = Rent.objects.create(
                 user=request.user,
                 book=Book.objects.get(id=book_id),
@@ -91,6 +95,13 @@ def rent_book(request, library_id, book_id):
             return redirect("home_client")
         else:
             messages.error(request, "Rent failed.")
+            return redirect("rent_book", library_id=library_id, book_id=book_id)
     form = NewRentBookForm()
     return render(request=request, template_name="rent_book.html", context={"rent_book_form":form})
+
+# def rent_request_list(request):
+#     if not request.user.is_authenticated:
+#         return redirect("index")
+#     rents = Rent.objects.filter(user=request.user, status='PENDING')
+#     return render(request=request, template_name="rent_request_list.html", context={"rent_requests":rents})
 

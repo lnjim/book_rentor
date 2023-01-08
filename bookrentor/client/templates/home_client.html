@@ -16,5 +16,31 @@
   <div>
     <a href="{% url 'library_list' %}">View Libraries</a>
   </div>
+  <table class="table">
+    <thead>
+      <tr>
+        <th scope="col">Request</th>
+        <th scope="col">Return date</th>
+        <th scope="col">Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for book_rented in books_rented %}
+      <tr>
+        <td>{{ book_rented.user_rented_book }}</td>
+        <td>
+          {{ book_rented.return_date }}
+        </td>
+        <td>
+          {% if book_rented.return_date < today %}
+            <p>EN RETARD</p>
+          {% else %}
+            <p>{{ book_rented.return_date|date:"d" }} days left</p>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
   {% endif %}
 </div>

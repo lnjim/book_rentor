@@ -71,7 +71,9 @@ class Rent(models.Model):
     return_date = models.DateField()
 
     def __str__(self):
-        return f'{self.user} rented {self.book} from {self.library} on {self.rent_date}'
+        return f'{self.user} want to rent {self.quantity} copies of the book: {self.book} from the library: {self.library} on {self.rent_date} to {self.return_date}'
+    def user_rented_book(self):
+        return f'{self.user} rented {self.quantity} copies of the book: {self.book} from the library: {self.library} on {self.rent_date} to {self.return_date}'
 
 class ReadingGroup(models.Model):
     name = models.CharField(max_length=200)

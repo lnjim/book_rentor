@@ -5,9 +5,10 @@ from django.contrib import messages
 from django.http import HttpResponse
 from django.contrib.auth.forms import AuthenticationForm
 import pdb
-from django.contrib.auth.models import Group
+from django.contrib.auth.models import Group, User
 from .forms import NewUserForm, NewGenreForm, NewEditorForm, NewAuthorForm, NewBookForm, NewLibraryForm, NewBookInLibraryForm, NewLibraryLocationForm
 from .models import Genre, Editor, Author, Book, Library, BooksInLibrary, LibraryLocation, Rent
+import datetime
 
 def index(request):
     return render(request=request, template_name="index.html")
@@ -156,5 +157,59 @@ def library(request, library_id):
 def pending_rent_requests(request):
     if not request.user.is_authenticated:
         return redirect("index")
+    if request.method == 'POST':
+        if request.POST['accepted'] == 'True':
+            # get book in library
+            book_in_library = BooksInLibrary.objects.get(book__id=request.POST['book_id'], library__id=request.POST['library_id'])
+            if book_in_library.quantity > 0 and book_in_library.quantity >= int(request.POST['quantity']):
+                book_in_library.quantity -= int(request.POST['quantity'])
+                rent = Rent.objects.get(user=User.objects.get(id=request.POST['user_id']), book__id=request.POST['book_id'], library__id=request.POST['library_id'], status='PENDING')
+                rent.status = 'ACCEPTED'
+                rent.save()
+                book_in_library.save()
+                messages.success(request, 'Request accepted')
+                return redirect("home")
+            else:
+                rent = Rent.objects.get(user=User.objects.get(id=request.POST['user_id']), book__id=request.POST['book_id'], library__id=request.POST['library_id'])
+                rent.status = 'REJECTED'
+                rent.save()
+                messages.error(request, 'Not enough books in library, request rejected')
+                return redirect("home")
+        else:
+            rent = Rent.objects.get(user=User.objects.get(id=request.POST['user_id']), book__id=request.POST['book_id'], library__id=request.POST['library_id'], status='PENDING')
+            rent.status = 'REJECTED'
+            rent.save()
+            messages.error(request, 'Request rejected')
+            return redirect("home")
     rent_requests = Rent.objects.filter(library__owner=request.user, status='PENDING')
     return render(request=request, template_name="pending_rent_requests.html", context={"rent_requests":rent_requests})
+
+def update_rent_requests(request):
+    if not request.user.is_authenticated:
+        return redirect("index")
+    if request.method == 'POST':
+        rent = Rent.objects.get(user=User.objects.get(id=request.POST['user_id']), book__id=request.POST['book_id'], library__id=request.POST['library_id'], status='ACCEPTED')
+        rent.status = 'RETURNED'
+        book_in_library = BooksInLibrary.objects.get(book__id=request.POST['book_id'], library__id=request.POST['library_id'])
+        book_in_library.quantity += int(request.POST['quantity'])
+        book_in_library.save()
+        rent.save()
+        messages.success(request, 'Book returned')
+        return redirect("home")
+    rent_requests = Rent.objects.filter(library__owner=request.user, status='ACCEPTED')
+    return render(request=request, template_name="update_rent_requests.html", context={"rent_requests":rent_requests})
+
+def late_rent_requests(request):
+    if not request.user.is_authenticated:
+        return redirect("index")
+    if request.method == 'POST':
+        rent = Rent.objects.get(user=User.objects.get(id=request.POST['user_id']), book__id=request.POST['book_id'], library__id=request.POST['library_id'], status='ACCEPTED')
+        rent.status = 'RETURNED'
+        book_in_library = BooksInLibrary.objects.get(book__id=request.POST['book_id'], library__id=request.POST['library_id'])
+        book_in_library.quantity += int(request.POST['quantity'])
+        book_in_library.save()
+        rent.save()
+        messages.success(request, 'Book returned')
+        return redirect("home")
+    rent_requests = Rent.objects.filter(library__owner=request.user, status='ACCEPTED', return_date__lt=datetime.date.today())
+    return render(request=request, template_name="late_rent_requests.html", context={"rent_requests":rent_requests})

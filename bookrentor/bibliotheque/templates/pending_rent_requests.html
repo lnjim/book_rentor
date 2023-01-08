@@ -3,31 +3,45 @@
 {% load bootstrap4 %}
 {% bootstrap_css %}
 {% bootstrap_javascript %}
+{% include 'messages.html' %}
 <h1>Rent requests</h1>
-<!-- display rent requests -->
-{% for rent_request in rent_requests %}
-<p>
-  {{ rent_request }}
-  <!-- {{ rent_request.book.title }}
-  {{ rent_request.book.id }}
-  {{ rent_request.user.username }}
-  {{ rent_request.user.id }}
-  {{ rent_request.status }} -->
-</p>
-<!-- button to accept a rent request -->
-<form method="post">
-  {% csrf_token %}
-  <input type="hidden" name="book_id" value="{{ rent_request.book.id }}">
-  <input type="hidden" name="user_id" value="{{ rent_request.user.id }}">
-  <button class="btn btn-primary" type="submit">Accept</button>
-</form>
-<!-- button to reject a rent request -->
-<form method="post">
-  {% csrf_token %}
-  <input type="hidden" name="book_id" value="{{ rent_request.book.id }}">
-  <input type="hidden" name="user_id" value="{{ rent_request.user.id }}">
-  <button class="btn btn-primary" type="submit">Reject</button>
-</form>
-{% endfor %}
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">Request</th>
+      <th scope="col">Accept</th>
+      <th scope="col">Reject</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for rent_request in rent_requests %}
+    <tr>
+      <td>{{ rent_request }}</td>
+      <td>
+        <form method="post">
+          {% csrf_token %}
+          <input type="hidden" name="user_id" value="{{ rent_request.user.id }}">
+          <input type="hidden" name="book_id" value="{{ rent_request.book.id }}">
+          <input type="hidden" name="library_id" value="{{ rent_request.library.id }}">
+          <input type="hidden" name="quantity" value="{{ rent_request.quantity }}">
+          <input type="hidden" name="accepted" value="True">
+          <button class="btn btn-primary" type="submit">Accept</button>
+        </form>
+      </td>
+      <td>
+        <form method="post">
+          {% csrf_token %}
+          <input type="hidden" name="user_id" value="{{ rent_request.user.id }}">
+          <input type="hidden" name="book_id" value="{{ rent_request.book.id }}">
+          <input type="hidden" name="library_id" value="{{ rent_request.library.id }}">
+          <input type="hidden" name="quantity" value="{{ rent_request.quantity }}">
+          <input type="hidden" name="accepted" value="False">
+          <button class="btn btn-primary" type="submit">Reject</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
 
 {% endblock %}

@@ -1,0 +1,41 @@
+<!-- include messages html -->
+{% include 'messages.html' %}
+
+<h1>Books rented</h1>
+
+<!-- if there are no rent requests -->
+{% if rent_requests|length == 0 %}
+<p>There are no rent requests.</p>
+{% endif %}
+<!-- if there are rent requests -->
+{% if rent_requests|length > 0 %}
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">Request</th>
+      <th scope="col">Return date</th>
+      <th scope="col">Returned</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for rent_request in rent_requests %}
+    <tr>
+      <td>{{ rent_request.user_rented_book }}</td>
+      <td>
+        {{ rent_request.return_date }}
+      </td>
+      <td>
+        <form method="post">
+          {% csrf_token %}
+          <input type="hidden" name="user_id" value="{{ rent_request.user.id }}">
+          <input type="hidden" name="book_id" value="{{ rent_request.book.id }}">
+          <input type="hidden" name="library_id" value="{{ rent_request.library.id }}">
+          <input type="hidden" name="quantity" value="{{ rent_request.quantity }}">
+          <button class="btn btn-primary" type="submit">Returned</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endif %}
