@@ -303,3 +303,19 @@ def pending_reading_group_requests(request):
             return redirect("home")
     reading_group_requests = ReadingGroupMember.objects.filter(group__library__owner=request.user, status='PENDING')
     return render(request=request, template_name="pending_reading_group_requests.html", context={"reading_group_requests":reading_group_requests})
+
+def reading_group_users(request, library_id, reading_group_id):
+    if not request.user.is_authenticated:
+        return redirect("index")
+    if not request.user.groups.filter(name='book_seller').exists():
+        return redirect("index")
+    if request.method == 'POST':
+        reading_group_member = ReadingGroupMember.objects.get(id=request.POST['reading_group_id'], user=request.POST['user_id'])
+        # remove from reading group
+        reading_group_member.delete()
+        messages.success(request, 'User removed from reading group')
+        return redirect("library_reading_groups", library_id=library_id)
+    library = Library.objects.get(id=library_id)
+    reading_group = ReadingGroup.objects.get(id=reading_group_id)
+    reading_group_members = ReadingGroupMember.objects.filter(group__id=reading_group_id, status='ACCEPTED')
+    return render(request=request, template_name="reading_group_users.html", context={"reading_group_members":reading_group_members, "reading_group":reading_group, "library":library})

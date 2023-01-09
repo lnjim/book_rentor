@@ -4,7 +4,6 @@
   <p>You have no rented books.</p>
 {% endif %}
 {% if rent_requests|length > 0 %}
-  {% for rent_request in rent_requests %}
   <table class="table">
     <thead>
       <tr>
@@ -16,12 +15,21 @@
       {% for rent_request in rent_requests %}
       <tr>
         <td>{{ rent_request }}</td>
-        <td>En attente</td>
+        <td>
+          {% if rent_request.status == 'PENDING' %}
+          En attente
+        {% elif rent_request.status == 'ACCEPTED' %}
+          Accepté
+        {% elif rent_request.status == 'REJECTED' %}
+          Rejeté
+        {% elif rent_request.status == 'RETURNED' %}
+          Retourné
+        {% endif %}
+        </td>
       </tr>
       {% endfor %}
     </tbody>
   </table>
-  {% endfor %}
 {% endif %}
 </tbody>
 </table>

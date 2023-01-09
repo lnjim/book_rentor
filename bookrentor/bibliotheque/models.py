@@ -1,5 +1,6 @@
 from django.contrib.auth.models import Group, User
 from django.db import models
+from datetime import date
 
 # Create your models here.
 class Genre(models.Model):
@@ -74,6 +75,9 @@ class Rent(models.Model):
         return f'{self.user} want to rent {self.quantity} copies of the book: {self.book} from the library: {self.library} on {self.rent_date} to {self.return_date}'
     def user_rented_book(self):
         return f'{self.user} rented {self.quantity} copies of the book: {self.book} from the library: {self.library} on {self.rent_date} to {self.return_date}'
+    # days left before return date
+    def days_left(self):
+        return (self.return_date - date.today()).days
 
 class ReadingGroup(models.Model):
     name = models.CharField(max_length=200)
@@ -85,6 +89,9 @@ class ReadingGroup(models.Model):
 
     def __str__(self):
         return f'{self.name} reading {self.book} in {self.library} on {self.date} at {self.hour} with a limit of {self.limit} members'
+    # days left before date
+    def days_left(self):
+        return (self.date - date.today()).days
 
 class ReadingGroupMember(models.Model):
     class MemberStatus(models.TextChoices):

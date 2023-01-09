@@ -13,4 +13,5 @@ urlpatterns = [
     path('rent_request_list/', views.rent_request_list, name='rent_request_list'),
     path('search_book/', views.search_book, name='search_book'),
     path('library/<int:library_id>/library_reading_group_list/', views.library_reading_group_list, name='library_reading_group_list'),
+    path('reading_group_request_list/', views.reading_group_request_list, name='reading_group_request_list'),
 ]

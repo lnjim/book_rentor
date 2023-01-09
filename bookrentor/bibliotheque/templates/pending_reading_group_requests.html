@@ -1,5 +1,8 @@
 {% include 'messages.html' %}
 <h1>Pending reading groups request</h1>
+{% if not reading_group_requests %}
+<p>You have no pending reading group requests.</p>
+{% else %}
 <table class="table">
   <thead>
     <tr>
@@ -33,3 +36,4 @@
     {% endfor %}
   </tbody>
 </table>
+{% endif %}

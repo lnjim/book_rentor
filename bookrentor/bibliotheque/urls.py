@@ -23,4 +23,5 @@ urlpatterns = [
     path('my_libraries/<int:library_id>/new_reading_group/<int:book_id>/', views.new_reading_group, name='new_reading_group'),
     path('my_libraries/<int:library_id>/reading_groups/', views.library_reading_groups, name='library_reading_groups'),
     path('pending_reading_group_requests/', views.pending_reading_group_requests, name='pending_reading_group_requests'),
+    path('my_libraries/<int:library_id>/reading_groups/<int:reading_group_id>/reading_group_users/', views.reading_group_users, name='reading_group_users'),
 ]

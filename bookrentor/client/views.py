@@ -18,7 +18,9 @@ def home_client(request):
     if not request.user.groups.filter(name='user').exists():
         return redirect("index_client")
     books_rented = Rent.objects.filter(user=request.user, status="ACCEPTED")
-    return render(request=request, template_name="home_client.html", context={"user":request.user, "books_rented":books_rented})
+    # reading group where user is in and are in the future
+    reading_groups = ReadingGroupMember.objects.filter(user=request.user, group__date__gte=datetime.date.today())
+    return render(request=request, template_name="home_client.html", context={"user":request.user, "books_rented":books_rented, "reading_groups":reading_groups})
 
 def register_client(request):
     if request.method == 'POST':
@@ -122,7 +124,7 @@ def rent_request_list(request):
         return redirect("index_client")
     if not request.user.groups.filter(name='user').exists():
         return redirect("index_client")
-    rents = Rent.objects.filter(user=request.user, status='PENDING')
+    rents = Rent.objects.filter(user=request.user)
     return render(request=request, template_name="rent_request_list.html", context={"rent_requests":rents})
 
 def search_book(request):
@@ -174,3 +176,11 @@ def library_reading_group_list(request, library_id):
     library = Library.objects.get(id=library_id)
     reading_groups = ReadingGroup.objects.filter(library=library)
     return render(request=request, template_name="library_reading_group_list.html", context={"library":library, "reading_groups":reading_groups})
+
+def reading_group_request_list(request):
+    if not request.user.is_authenticated:
+        return redirect("index_client")
+    if not request.user.groups.filter(name='user').exists():
+        return redirect("index_client")
+    reading_group_requests = ReadingGroupMember.objects.filter(user=request.user)
+    return render(request=request, template_name="reading_group_request_list.html", context={"reading_group_requests":reading_group_requests})

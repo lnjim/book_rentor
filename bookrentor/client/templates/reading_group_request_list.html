@@ -1,0 +1,31 @@
+{% include 'messages.html' %}
+<h1>Pending reading groups request</h1>
+{% if not reading_group_requests %}
+<p>You have no pending reading group requests.</p>
+{% else %}
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">Request</th>
+      <th scope="col">Status</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for reading_group_request in reading_group_requests %}
+    <tr>
+      <td>{{ reading_group_request }}</td>
+      <td>
+        {% if reading_group_request.status == 'PENDING' %}
+          En attente
+        {% elif reading_group_request.status == 'ACCEPTED' %}
+          Accepté
+        {% elif reading_group_request.status == 'REJECTED' %}
+          Rejeté
+        {% endif %}
+      </td>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endif %}

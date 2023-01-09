@@ -1,0 +1,35 @@
+{% include 'messages.html' %}
+<h1>Members of the reanding group {{ reading_group.name }} in the library {{ library.name }}</h1>
+
+{% if not reading_group_members %}
+<p>There are no members in this reading group.</p>
+{% else %}
+  <table class="table">
+    <thead>
+      <tr>
+        <th scope="col">Username</th>
+        <th scope="col">Email</th>
+        <th scope="col">Remove</th>
+        <th scope="col">Send a message</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for reading_group_member in reading_group_members %}
+      <tr>
+        <td>{{ reading_group_member.user }}</td>
+        <td>{{ reading_group_member.user.email }}</td>
+        <td>
+          <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="user_id" value="{{ reading_group_member.user.id }}">
+            <input type="hidden" name="reading_group_id" value="{{ reading_group.id }}">
+            <input type="hidden" name="library_id" value="{{ library.id }}">
+            <input type="submit" value="Remove" class="btn btn-danger">
+          </form>
+        </td>
+        <td>Send a message</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endif %}

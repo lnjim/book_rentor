@@ -5,7 +5,6 @@
 <div>
   <h1>Welcome Client {{ user.username }}!</h1>
   <p>You are a {{ user.groups.all.0.name }}.</p>
-  {% if user.is_authenticated %}
     <div>
       <a href="{% url 'logout_client' %}">Logout</a>
     </div>
@@ -14,6 +13,9 @@
     </div>
     <div>
       <a href="{% url 'rent_request_list' %}">My rent requests</a>
+    </div>
+    <div>
+      <a href="{% url 'reading_group_request_list' %}">My reading group requests</a>
     </div>
     <div>
       <a href="{% url 'search_book' %}">Search a book</a>
@@ -40,7 +42,7 @@
                 {% if book_rented.return_date < today %}
                   <p>EN RETARD</p>
                 {% else %}
-                  <p>{{ book_rented.return_date|date:"d" }} days left</p>
+                  <p>{{ book_rented.days_left }} days left</p>
                 {% endif %}
               </td>
             </tr>
@@ -48,5 +50,31 @@
         </tbody>
       </table>
     {% endif %}
-  {% endif %}
+    {%if reading_groups|length == 0 %}
+      <p>You have no reading group</p>
+    {% else %}
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">Request</th>
+            <th scope="col">Date</th>
+            <th scope="col">Countdown</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for reading_group in reading_groups %}
+            <tr>
+              <td>{{ reading_group.group.name }}</td>
+              <td>
+                {{ reading_group.group.date }}
+              </td>
+              <td>
+                <!-- count days between today and reading group date -->
+                {{ reading_group.group.days_left }} days left
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% endif %}
 </div>
