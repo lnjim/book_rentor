@@ -1,10 +1,26 @@
-<div>
-  <!-- loop through all libraries -->
-  {% for library in libraries %}
-  <!-- display link to library detail page -->
-  <div>
-    <a href="{% url 'library' library.id %}">{{ library.name }}</a>
-    <!-- button to edit library -->
-  </div>
-  {% endfor %}
-</div>
+{% include 'messages.html' %}
+<h1>My libraries</h1>
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">Name</th>
+      <th scope="col">Location</th>
+      <th scope="col">More details</th>
+      <th scope="col">Reading groups</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for library in libraries %}
+      <tr>
+        <td>{{ library.name }}</td>
+        <td>{{ library.location }}</td>
+        <td>
+          <a href="{% url 'library' library.id %}">Details / Create reading group</a>
+        </td>
+        <td>
+          <a href="{% url 'library_reading_groups' library.id %}">See reading groups</a>
+        </td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>

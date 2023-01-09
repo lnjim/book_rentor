@@ -1,0 +1,35 @@
+{% include 'messages.html' %}
+<h1>Pending reading groups request</h1>
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">Request</th>
+      <th scope="col">Accept</th>
+      <th scope="col">Reject</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for reading_group_request in reading_group_requests %}
+    <tr>
+      <td>{{ reading_group_request }}</td>
+      <td>
+        <form method="post">
+          {% csrf_token %}
+          <input type="hidden" name="reading_group_member_id" value="{{ reading_group_request.id }}" />
+          <input type="hidden" name="reading_group_id" value="{{ reading_group_request.group.id }}" />
+          <input type="hidden" name="accept" value="True" />
+          <input type="submit" class="btn btn-primary" value="Accept" />
+        </form>
+      </td>
+      <td>
+        <form method="post">
+          {% csrf_token %}
+          <input type="hidden" name="reading_group_member_id" value="{{ reading_group_request.id }}" />
+          <input type="hidden" name="reading_group_id" value="{{ reading_group_request.group.id }}" />
+          <input type="hidden" name="accept" value="False" />
+          <input type="submit" class="btn btn-danger" value="Reject" />
+        </form>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>

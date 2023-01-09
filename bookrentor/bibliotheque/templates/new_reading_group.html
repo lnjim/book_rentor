@@ -1,0 +1,8 @@
+{% include 'messages.html' %}
+{% load crispy_forms_tags %}
+<h1>Create new reading group</h1>
+<form method="post">
+  {% csrf_token %}
+  {{ new_reading_group_form|crispy }}
+  <button class="btn btn-primary" type="submit">Create</button>
+</form>

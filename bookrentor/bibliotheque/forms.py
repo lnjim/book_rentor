@@ -45,3 +45,13 @@ class NewBookInLibraryForm(forms.Form):
     book = forms.ModelChoiceField(queryset=Book.objects.all())
     library = forms.ModelChoiceField(queryset=Library.objects.all())
     quantity = forms.IntegerField()
+
+class NewReadingGroupForm(forms.Form):
+    name = forms.CharField(max_length=200)
+    date = forms.DateField(
+        widget=forms.DateInput(attrs={'type': 'date'})
+    )
+    hour = forms.TimeField(
+        widget=forms.TimeInput(attrs={'type': 'time'})
+    )
+    limit = forms.IntegerField()

@@ -3,44 +3,50 @@
 {% bootstrap_javascript %}
 {% include 'messages.html' %}
 <div>
-  <!-- Home page welcoming logged in user -->
   <h1>Welcome Client {{ user.username }}!</h1>
-  <!-- display user group -->
   <p>You are a {{ user.groups.all.0.name }}.</p>
   {% if user.is_authenticated %}
-  <!-- redirect to logout page -->
-  <div>
-    <a href="{% url 'logout_client' %}">Logout</a>
-  </div>
-  <!-- link to library list page -->
-  <div>
-    <a href="{% url 'library_list' %}">View Libraries</a>
-  </div>
-  <table class="table">
-    <thead>
-      <tr>
-        <th scope="col">Request</th>
-        <th scope="col">Return date</th>
-        <th scope="col">Status</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for book_rented in books_rented %}
-      <tr>
-        <td>{{ book_rented.user_rented_book }}</td>
-        <td>
-          {{ book_rented.return_date }}
-        </td>
-        <td>
-          {% if book_rented.return_date < today %}
-            <p>EN RETARD</p>
-          {% else %}
-            <p>{{ book_rented.return_date|date:"d" }} days left</p>
-          {% endif %}
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+    <div>
+      <a href="{% url 'logout_client' %}">Logout</a>
+    </div>
+    <div>
+      <a href="{% url 'library_list' %}">View Libraries</a>
+    </div>
+    <div>
+      <a href="{% url 'rent_request_list' %}">My rent requests</a>
+    </div>
+    <div>
+      <a href="{% url 'search_book' %}">Search a book</a>
+    </div>
+    {% if books_rented|length == 0 %}
+      <p>You have no rented books.</p>
+    {% else %}
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">Request</th>
+            <th scope="col">Return date</th>
+            <th scope="col">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for book_rented in books_rented %}
+            <tr>
+              <td>{{ book_rented.user_rented_book }}</td>
+              <td>
+                {{ book_rented.return_date }}
+              </td>
+              <td>
+                {% if book_rented.return_date < today %}
+                  <p>EN RETARD</p>
+                {% else %}
+                  <p>{{ book_rented.return_date|date:"d" }} days left</p>
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% endif %}
   {% endif %}
 </div>

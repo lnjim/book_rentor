@@ -2,12 +2,11 @@ from django.shortcuts import  render, redirect
 from .forms import NewUserForm
 from django.contrib.auth import login, authenticate, logout
 from django.contrib import messages
-from django.http import HttpResponse
 from django.contrib.auth.forms import AuthenticationForm
 import pdb
 from django.contrib.auth.models import Group, User
-from .forms import NewUserForm, NewGenreForm, NewEditorForm, NewAuthorForm, NewBookForm, NewLibraryForm, NewBookInLibraryForm, NewLibraryLocationForm
-from .models import Genre, Editor, Author, Book, Library, BooksInLibrary, LibraryLocation, Rent
+from .forms import NewUserForm, NewGenreForm, NewEditorForm, NewAuthorForm, NewBookForm, NewLibraryForm, NewBookInLibraryForm, NewLibraryLocationForm, NewReadingGroupForm
+from .models import Genre, Editor, Author, Book, Library, BooksInLibrary, LibraryLocation, Rent, ReadingGroup, ReadingGroupMember
 import datetime
 
 def index(request):
@@ -60,6 +59,8 @@ def logout_user(request):
 def new_genre(request):
     if not request.user.is_authenticated:
         return redirect("index")
+    if not request.user.groups.filter(name='book_seller').exists():
+        return redirect("index")
     if request.method == 'POST':
         form = NewGenreForm(request.POST)
         if form.is_valid():
@@ -71,6 +72,8 @@ def new_genre(request):
 
 def new_editor(request):
     if not request.user.is_authenticated:
+        return redirect("index")
+    if not request.user.groups.filter(name='book_seller').exists():
         return redirect("index")
     if request.method == 'POST':
         form = NewEditorForm(request.POST)
@@ -84,6 +87,8 @@ def new_editor(request):
 def new_author(request):
     if not request.user.is_authenticated:
         return redirect("index")
+    if not request.user.groups.filter(name='book_seller').exists():
+        return redirect("index")
     if request.method == 'POST':
         form = NewAuthorForm(request.POST)
         if form.is_valid():
@@ -95,6 +100,8 @@ def new_author(request):
 
 def new_book(request):
     if not request.user.is_authenticated:
+        return redirect("index")
+    if not request.user.groups.filter(name='book_seller').exists():
         return redirect("index")
     if request.method == 'POST':
         form = NewBookForm(request.POST)
@@ -108,6 +115,8 @@ def new_book(request):
 def new_library_location(request):
     if not request.user.is_authenticated:
         return redirect("index")
+    if not request.user.groups.filter(name='book_seller').exists():
+        return redirect("index")
     if request.method == 'POST':
         form = NewLibraryLocationForm(request.POST)
         if form.is_valid():
@@ -119,6 +128,8 @@ def new_library_location(request):
 
 def new_library(request):
     if not request.user.is_authenticated:
+        return redirect("index")
+    if not request.user.groups.filter(name='book_seller').exists():
         return redirect("index")
     if request.method == 'POST':
         form = NewLibraryForm(request.POST)
@@ -132,6 +143,8 @@ def new_library(request):
 def new_book_in_library(request):
     if not request.user.is_authenticated:
         return redirect("index")
+    if not request.user.groups.filter(name='book_seller').exists():
+        return redirect("index")
     if request.method == 'POST':
         form = NewBookInLibraryForm(request.POST)
         if form.is_valid():
@@ -144,11 +157,15 @@ def new_book_in_library(request):
 def my_libraries(request):
     if not request.user.is_authenticated:
         return redirect("index")
+    if not request.user.groups.filter(name='book_seller').exists():
+        return redirect("index")
     libraries = Library.objects.filter(owner=request.user)
     return render(request=request, template_name="my_libraries.html", context={"libraries":libraries})
 
 def library(request, library_id):
     if not request.user.is_authenticated:
+        return redirect("index")
+    if not request.user.groups.filter(name='book_seller').exists():
         return redirect("index")
     library = Library.objects.get(id=library_id)
     books = BooksInLibrary.objects.filter(library=library)
@@ -156,6 +173,8 @@ def library(request, library_id):
 
 def pending_rent_requests(request):
     if not request.user.is_authenticated:
+        return redirect("index")
+    if not request.user.groups.filter(name='book_seller').exists():
         return redirect("index")
     if request.method == 'POST':
         if request.POST['accepted'] == 'True':
@@ -187,6 +206,8 @@ def pending_rent_requests(request):
 def update_rent_requests(request):
     if not request.user.is_authenticated:
         return redirect("index")
+    if not request.user.groups.filter(name='book_seller').exists():
+        return redirect("index")
     if request.method == 'POST':
         rent = Rent.objects.get(user=User.objects.get(id=request.POST['user_id']), book__id=request.POST['book_id'], library__id=request.POST['library_id'], status='ACCEPTED')
         rent.status = 'RETURNED'
@@ -202,6 +223,8 @@ def update_rent_requests(request):
 def late_rent_requests(request):
     if not request.user.is_authenticated:
         return redirect("index")
+    if not request.user.groups.filter(name='book_seller').exists():
+        return redirect("index")
     if request.method == 'POST':
         rent = Rent.objects.get(user=User.objects.get(id=request.POST['user_id']), book__id=request.POST['book_id'], library__id=request.POST['library_id'], status='ACCEPTED')
         rent.status = 'RETURNED'
@@ -213,3 +236,70 @@ def late_rent_requests(request):
         return redirect("home")
     rent_requests = Rent.objects.filter(library__owner=request.user, status='ACCEPTED', return_date__lt=datetime.date.today())
     return render(request=request, template_name="late_rent_requests.html", context={"rent_requests":rent_requests})
+
+def new_reading_group(request, library_id, book_id):
+    if not request.user.is_authenticated:
+        return redirect("index")
+    if not request.user.groups.filter(name='book_seller').exists():
+        return redirect("index")
+    if request.method == 'POST':
+        form = NewReadingGroupForm(request.POST)
+        if form.is_valid():
+            book_in_library = BooksInLibrary.objects.filter(book=book_id, library__id=library_id)
+            if book_in_library:
+                if form.cleaned_data['date'] < datetime.date.today():
+                    messages.error(request, 'Invalid date')
+                    return redirect("home")
+                reading_group = ReadingGroup.objects.create(
+                    name=form.cleaned_data['name'],
+                    book=Book.objects.get(id=book_id),
+                    library=Library.objects.get(id=library_id),
+                    date=form.cleaned_data['date'],
+                    hour=form.cleaned_data['hour'],
+                    limit=form.cleaned_data['limit']
+                )
+                reading_group.save()
+                messages.success(request, 'Reading group created')
+                return redirect("home")
+            else:
+                messages.error(request, 'Book not found in library')
+                return redirect("home")
+        else:
+            messages.error(request, 'Invalid form')
+            return redirect("home")
+    form = NewReadingGroupForm()
+    return render(request=request, template_name="new_reading_group.html", context={"new_reading_group_form":form})
+
+def library_reading_groups(request, library_id):
+    if not request.user.is_authenticated:
+        return redirect("index")
+    if not request.user.groups.filter(name='book_seller').exists():
+        return redirect("index")
+    library = Library.objects.get(id=library_id)
+    reading_groups = ReadingGroup.objects.filter(library__id=library_id)
+    return render(request=request, template_name="library_reading_groups.html", context={"reading_groups":reading_groups, "library":library})
+
+def pending_reading_group_requests(request):
+    if not request.user.is_authenticated:
+        return redirect("index")
+    if not request.user.groups.filter(name='book_seller').exists():
+        return redirect("index")
+    if request.method == 'POST':
+        reading_group_member = ReadingGroupMember.objects.get(id=request.POST['reading_group_member_id'])
+        if request.POST['accept'] == 'True':
+            if ReadingGroupMember.objects.filter(id=request.POST['reading_group_member_id'], status='ACCEPTED').count() >= ReadingGroup.objects.get(id=request.POST['reading_group_id']).limit:
+                messages.error(request, 'Limit reached, request rejected')
+                reading_group_member.status = 'REJECTED'
+                reading_group_member.save()
+                return redirect("home")
+            reading_group_member.status = 'ACCEPTED'
+            reading_group_member.save()
+            messages.success(request, 'Request accepted')
+            return redirect("home")
+        else:
+            reading_group_member.status = 'REJECTED'
+            reading_group_member.save()
+            messages.error(request, 'Request rejected')
+            return redirect("home")
+    reading_group_requests = ReadingGroupMember.objects.filter(group__library__owner=request.user, status='PENDING')
+    return render(request=request, template_name="pending_reading_group_requests.html", context={"reading_group_requests":reading_group_requests})

@@ -20,4 +20,7 @@ urlpatterns = [
     path('pending_rent_requests/', views.pending_rent_requests, name='pending_rent_requests'),
     path('update_rent_requests/', views.update_rent_requests, name='update_rent_requests'),
     path('late_rent_requests/', views.late_rent_requests, name='late_rent_requests'),
+    path('my_libraries/<int:library_id>/new_reading_group/<int:book_id>/', views.new_reading_group, name='new_reading_group'),
+    path('my_libraries/<int:library_id>/reading_groups/', views.library_reading_groups, name='library_reading_groups'),
+    path('pending_reading_group_requests/', views.pending_reading_group_requests, name='pending_reading_group_requests'),
 ]

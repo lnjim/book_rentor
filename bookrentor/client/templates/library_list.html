@@ -1,9 +1,61 @@
+{% include 'messages.html' %}
+{% load crispy_forms_tags %}
 <div>
-  <!-- loop through all libraries -->
-  {% for library in libraries %}
-  <!-- display link to library detail page -->
-  <div>
-    <a href="{% url 'library_detail' library.id %}">{{ library.name }}</a>
-  </div>
-  {% endfor %}
+  <h1>Libraries</h1>
+  <form method="post">
+    {% csrf_token %}
+    {{ search_library_form|crispy }}
+    <button class="btn btn-primary" type="submit">Search</button>
+  </form>
+  {% if libraries_filtered|length > 0 %}
+    <h2>Libraries found</h2>
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">Name</th>
+          <th scope="col">Location</th>
+          <th scope="col">More details</th>
+          <th scope="col">Reading groups</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for library in libraries_filtered %}
+          <tr>
+            <td>{{ library.name }}</td>
+            <td>{{ library.location }}</td>
+            <td>
+              <a href="{% url 'library_detail' library.id %}">See more</a>
+            </td>
+            <td>
+              <a href="{% url 'library_reading_group_list' library.id %}">See reading groups</a>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <h2>See all the libraries</h2>
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">Name</th>
+          <th scope="col">Location</th>
+          <th scope="col">More details</th>
+          <th>Reading groups</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for library in libraries %}
+          <tr>
+            <td>{{ library.name }}</td>
+            <td>{{ library.location }}</td>
+            <td>
+              <a href="{% url 'library_detail' library.id %}">See more</a>
+            </td>
+            <td>
+              <a href="{% url 'library_reading_group_list' library.id %}">See reading groups</a>
+            </td>
+          </tr>
+        {% endfor %}
+    </table>
+  {% endif %}  
 </div>

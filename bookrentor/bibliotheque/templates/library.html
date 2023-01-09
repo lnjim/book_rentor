@@ -1,13 +1,34 @@
+{% include 'messages.html' %}
 <div>
   <h1>
     {{ library.name }}
+    
   </h1>
   
-  <!-- loop through all books -->
-  {% for book in books %}
-  <!-- display link to book detail page -->
-  <div>
-    <p>{{ book.book }}</p>
-  </div>
-  {% endfor %}
+  <table class="table">
+    <thead>
+      <tr>
+        <th scope="col">Title</th>
+        <th scope="col">Author</th>
+        <th scope="col">Editor</th>
+        <th scope="col">Genre</th>
+        <th scope="col">Summary</th>
+        <th scope="col">Create reading Group</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for book in books %}
+      <tr>
+        <td>{{ book.book.id }}</td>
+        <td>{{ book.book.author }}</td>
+        <td>{{ book.book.editor }}</td>
+        <td>{{ book.book.genre }}</td>
+        <td>{{ book.book.summary }}</td>
+        <td>
+          <a href="{% url 'new_reading_group' library.id book.book.id %}" class="btn btn-primary">Create</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
 </div>

@@ -34,13 +34,16 @@
     <a href="{% url 'my_libraries' %}">View my libraries</a>
   </div>
   <div>
-    <a href="{% url 'pending_rent_requests' %}">View pending requests</a>
+    <a href="{% url 'pending_rent_requests' %}">View pending rent requests</a>
   </div>
   <div>
     <a href="{% url 'update_rent_requests' %}">View rented books</a>
   </div>
   <div>
     <a href="{% url 'late_rent_requests' %}">View late book rentals</a>
+  </div>
+  <div>
+    <a href="{% url 'pending_reading_group_requests' %}">View pending reading group requests</a>
   </div>
   {% endif %}
 </div>

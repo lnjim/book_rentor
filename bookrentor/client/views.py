@@ -4,8 +4,8 @@ from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.models import Group
 from django.contrib import messages
 from django.contrib.auth.forms import AuthenticationForm
-from bibliotheque.models import Genre, Editor, Author, Book, Library, BooksInLibrary, LibraryLocation, Rent
-from .forms import NewRentBookForm
+from bibliotheque.models import Book, Library, BooksInLibrary, Rent, ReadingGroup, ReadingGroupMember
+from .forms import NewRentBookForm, SearchBookForm, SearchLibraryForm
 import datetime
 import pdb
 
@@ -14,6 +14,8 @@ def index_client(request):
 
 def home_client(request):
     if not request.user.is_authenticated:
+        return redirect("index_client")
+    if not request.user.groups.filter(name='user').exists():
         return redirect("index_client")
     books_rented = Rent.objects.filter(user=request.user, status="ACCEPTED")
     return render(request=request, template_name="home_client.html", context={"user":request.user, "books_rented":books_rented})
@@ -58,20 +60,36 @@ def logout_client(request):
     return redirect("index_client")
 
 def library_list(request):
-    # render the list of libraries
+    if not request.user.is_authenticated:
+        return redirect("index_client")
+    if not request.user.groups.filter(name='user').exists():
+        return redirect("index_client")
+    if request.method == 'POST':
+        form = SearchLibraryForm(request.POST)
+        if form.is_valid():
+            location = form.cleaned_data.get('location')
+            libraries = Library.objects.filter(location=location)
+            if libraries.count() == 0:
+                messages.error(request, "No library found.")
+            return render(request=request, template_name="library_list.html", context={"libraries_filtered":libraries, "search_library_form":form})
     libraries = Library.objects.all()
-    return render(request=request, template_name="library_list.html", context={"libraries":libraries})
+    form = SearchLibraryForm()
+    return render(request=request, template_name="library_list.html", context={"libraries":libraries, "search_library_form":form})
 
 def library_detail(request, library_id):
     if not request.user.is_authenticated:
-        return redirect("index")
+        return redirect("index_client")
+    if not request.user.groups.filter(name='user').exists():
+        return redirect("index_client")
     library = Library.objects.get(id=library_id)
     books_in_library = BooksInLibrary.objects.filter(library=library)
     return render(request=request, template_name="library_detail.html", context={"library":library, "books_in_library":books_in_library})
 
 def rent_book(request, library_id, book_id):
     if not request.user.is_authenticated:
-        return redirect("index")
+        return redirect("index_client")
+    if not request.user.groups.filter(name='user').exists():
+        return redirect("index_client")
     if request.method == 'POST':
         form = NewRentBookForm(request.POST)
         if form.is_valid():
@@ -99,9 +117,60 @@ def rent_book(request, library_id, book_id):
     form = NewRentBookForm()
     return render(request=request, template_name="rent_book.html", context={"rent_book_form":form})
 
-# def rent_request_list(request):
-#     if not request.user.is_authenticated:
-#         return redirect("index")
-#     rents = Rent.objects.filter(user=request.user, status='PENDING')
-#     return render(request=request, template_name="rent_request_list.html", context={"rent_requests":rents})
+def rent_request_list(request):
+    if not request.user.is_authenticated:
+        return redirect("index_client")
+    if not request.user.groups.filter(name='user').exists():
+        return redirect("index_client")
+    rents = Rent.objects.filter(user=request.user, status='PENDING')
+    return render(request=request, template_name="rent_request_list.html", context={"rent_requests":rents})
 
+def search_book(request):
+    if not request.user.is_authenticated:
+        return redirect("index_client")
+    if not request.user.groups.filter(name='user').exists():
+        return redirect("index_client")
+    if request.method == 'POST':
+        form = SearchBookForm(request.POST)
+        if form.is_valid():
+            books = BooksInLibrary.objects.all()
+            if form.cleaned_data.get('title') != '':
+                books = books.filter(book__title__icontains=form.cleaned_data.get('title'))
+            if form.cleaned_data.get('author') != '':
+                books = books.filter(book__author__name__icontains=form.cleaned_data.get('author'))
+            if form.cleaned_data.get('genre') != None:
+                books = books.filter(book__genre=form.cleaned_data.get('genre'))
+            if form.cleaned_data.get('editor') != None:
+                books = books.filter(book__editor=form.cleaned_data.get('editor'))
+            if form.cleaned_data.get('library') != None:
+                books = books.filter(library=form.cleaned_data.get('library'))
+            return render(request=request, template_name="search_book.html", context={"search_book_form":form, "books":books})
+    form = SearchBookForm()
+    return render(request=request, template_name="search_book.html", context={"search_book_form":form})
+
+def library_reading_group_list(request, library_id):
+    if not request.user.is_authenticated:
+        return redirect("index_client")
+    if not request.user.groups.filter(name='user').exists():
+        return redirect("index_client")
+    if request.method == 'POST':
+        reading_group = ReadingGroup.objects.get(id=request.POST.get('reading_group_id'))
+        # check if user is already in the reading group
+        if ReadingGroupMember.objects.filter(user=request.user, group=reading_group).exists():
+            messages.error(request, "You are already in this reading group.")
+            return redirect("library_reading_group_list", library_id=library_id)
+        # check if there is still space in the reading group
+        if ReadingGroupMember.objects.filter(group=reading_group, status='ACCEPTED').count() >= reading_group.limit:
+            messages.error(request, "This reading group is full.")
+            return redirect("library_reading_group_list", library_id=library_id)
+        reading_group_member = ReadingGroupMember.objects.create(
+            user=request.user,
+            group=reading_group,
+            status='PENDING'
+        )
+        reading_group_member.save()
+        messages.success(request, "Request sent.")
+        return redirect("home_client")
+    library = Library.objects.get(id=library_id)
+    reading_groups = ReadingGroup.objects.filter(library=library)
+    return render(request=request, template_name="library_reading_group_list.html", context={"library":library, "reading_groups":reading_groups})

@@ -1,0 +1,27 @@
+{% include 'messages.html' %}
+
+{% if rent_requests|length == 0 %}
+  <p>You have no rented books.</p>
+{% endif %}
+{% if rent_requests|length > 0 %}
+  {% for rent_request in rent_requests %}
+  <table class="table">
+    <thead>
+      <tr>
+        <th scope="col">Request</th>
+        <th scope="col">Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for rent_request in rent_requests %}
+      <tr>
+        <td>{{ rent_request }}</td>
+        <td>En attente</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endfor %}
+{% endif %}
+</tbody>
+</table>

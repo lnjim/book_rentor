@@ -80,10 +80,11 @@ class ReadingGroup(models.Model):
     book = models.ForeignKey('Book', on_delete=models.SET_NULL, null=True)
     library = models.ForeignKey('Library', on_delete=models.SET_NULL, null=True)
     date = models.DateField()
+    hour = models.TimeField(default='18:00')
     limit = models.IntegerField(default=10)
 
     def __str__(self):
-        return f'{self.name} reading {self.book} in {self.library} on {self.date}'
+        return f'{self.name} reading {self.book} in {self.library} on {self.date} at {self.hour} with a limit of {self.limit} members'
 
 class ReadingGroupMember(models.Model):
     class MemberStatus(models.TextChoices):
@@ -95,4 +96,6 @@ class ReadingGroupMember(models.Model):
     status = models.CharField(default=MemberStatus.PENDING, max_length=10, choices=MemberStatus.choices)
 
     def __str__(self):
-        return f'{self.user} is a member of {self.group}'
+        return f'{self.user} want to join the group {self.group}'
+    def user_joined_group(self):
+        return f'{self.user} joined the group {self.group}'
