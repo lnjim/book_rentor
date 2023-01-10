@@ -319,3 +319,38 @@ def reading_group_users(request, library_id, reading_group_id):
     reading_group = ReadingGroup.objects.get(id=reading_group_id)
     reading_group_members = ReadingGroupMember.objects.filter(group__id=reading_group_id, status='ACCEPTED')
     return render(request=request, template_name="reading_group_users.html", context={"reading_group_members":reading_group_members, "reading_group":reading_group, "library":library})
+
+def edit_book(request, book_id):
+    form = NewBookForm(request.POST or None)
+    book = Book.objects.get(id=book_id)
+    if not request.user.is_authenticated:
+        return redirect("index")
+    if not request.user.groups.filter(name='book_seller').exists():
+        return redirect("index")
+    if request.method == 'POST':
+        if request.POST['action'] == 'update':
+            if form.is_valid():
+                book.title = form.cleaned_data['title']
+                book.author = form.cleaned_data['author']
+                book.genre = form.cleaned_data['genre']
+                book.editor = form.cleaned_data['editor']
+                book.summary = form.cleaned_data['summary']
+                book.save()
+                messages.success(request, 'Book updated')
+                return redirect("home")
+            else:
+                messages.error(request, 'Invalid form')
+                return redirect("home")
+        elif request.POST['action'] == 'delete':
+            book = Book.objects.get(id=book_id)
+            book.delete()
+            messages.success(request, 'Book deleted')
+            return redirect("home")
+    else:
+        form.fields['title'].initial = Book.objects.get(id=book_id).title
+        form.fields['author'].initial = Book.objects.get(id=book_id).author
+        form.fields['genre'].initial = Book.objects.get(id=book_id).genre
+        form.fields['editor'].initial = Book.objects.get(id=book_id).editor
+        form.fields['summary'].initial = Book.objects.get(id=book_id).summary
+        return render(request=request, template_name="edit_book.html", context={"edit_book_form":form, "book":book})
+

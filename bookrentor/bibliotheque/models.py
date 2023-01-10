@@ -27,10 +27,10 @@ class Editor(models.Model):
 
 class Book(models.Model):
     title = models.CharField(max_length=200)
-    author = models.ForeignKey('Author', on_delete=models.SET_NULL, null=True)
-    editor = models.ForeignKey('Editor', on_delete=models.SET_NULL, null=True)
+    author = models.ForeignKey('Author', on_delete=models.CASCADE, null=True)
+    editor = models.ForeignKey('Editor', on_delete=models.CASCADE, null=True)
     summary = models.TextField(max_length=1000, help_text='Enter a brief description of the book')
-    genre = models.ForeignKey('Genre', on_delete=models.SET_NULL, null=True)
+    genre = models.ForeignKey('Genre', on_delete=models.CASCADE, null=True)
 
     def __str__(self):
         return self.title
@@ -43,15 +43,15 @@ class LibraryLocation(models.Model):
 
 class Library(models.Model):
     name = models.CharField(max_length=200)
-    location = models.ForeignKey('LibraryLocation', on_delete=models.SET_NULL, null=True)
-    owner = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    location = models.ForeignKey('LibraryLocation', on_delete=models.CASCADE, null=True)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
 
     def __str__(self):
         return self.name
 
 class BooksInLibrary(models.Model):
-    book = models.ForeignKey('Book', on_delete=models.SET_NULL, null=True)
-    library = models.ForeignKey('Library', on_delete=models.SET_NULL, null=True)
+    book = models.ForeignKey('Book', on_delete=models.CASCADE, null=True)
+    library = models.ForeignKey('Library', on_delete=models.CASCADE, null=True)
     quantity = models.IntegerField()
 
     def __str__(self):
@@ -63,9 +63,9 @@ class Rent(models.Model):
         ACCEPTED = 'ACCEPTED', 'Accepted'
         REJECTED = 'REJECTED', 'Rejected'
         RETURNED = 'RETURNED', 'Returned'
-    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
-    book = models.ForeignKey('Book', on_delete=models.SET_NULL, null=True)
-    library = models.ForeignKey('Library', on_delete=models.SET_NULL, null=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+    book = models.ForeignKey('Book', on_delete=models.CASCADE, null=True)
+    library = models.ForeignKey('Library', on_delete=models.CASCADE, null=True)
     quantity = models.IntegerField()
     status = models.CharField(default=RentStatus.PENDING, max_length=10, choices=RentStatus.choices)
     rent_date = models.DateField()
@@ -81,8 +81,8 @@ class Rent(models.Model):
 
 class ReadingGroup(models.Model):
     name = models.CharField(max_length=200)
-    book = models.ForeignKey('Book', on_delete=models.SET_NULL, null=True)
-    library = models.ForeignKey('Library', on_delete=models.SET_NULL, null=True)
+    book = models.ForeignKey('Book', on_delete=models.CASCADE, null=True)
+    library = models.ForeignKey('Library', on_delete=models.CASCADE, null=True)
     date = models.DateField()
     hour = models.TimeField(default='18:00')
     limit = models.IntegerField(default=10)
@@ -92,14 +92,17 @@ class ReadingGroup(models.Model):
     # days left before date
     def days_left(self):
         return (self.date - date.today()).days
+    # count members in the group
+    def count_members(self):
+        return self.readinggroupmember_set.filter(status='ACCEPTED').count()
 
 class ReadingGroupMember(models.Model):
     class MemberStatus(models.TextChoices):
         PENDING = 'PENDING', 'Pending'
         ACCEPTED = 'ACCEPTED', 'Accepted'
         REJECTED = 'REJECTED', 'Rejected'
-    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
-    group = models.ForeignKey('ReadingGroup', on_delete=models.SET_NULL, null=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+    group = models.ForeignKey('ReadingGroup', on_delete=models.CASCADE, null=True)
     status = models.CharField(default=MemberStatus.PENDING, max_length=10, choices=MemberStatus.choices)
 
     def __str__(self):

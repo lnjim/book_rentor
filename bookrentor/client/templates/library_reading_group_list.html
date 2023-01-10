@@ -7,7 +7,7 @@
       <th scope="col">Book</th>
       <th scope="col">Date</th>
       <th scope="col">Hour</th>
-      <th scope="col">Limit</th>
+      <th scope="col">Capacity</th>
       <th scope="col">Join</th>
     </tr>
   </thead>
@@ -18,13 +18,17 @@
       <td>{{ reading_group.book }}</td>
       <td>{{ reading_group.date }}</td>
       <td>{{ reading_group.hour }}</td>
-      <td>{{ reading_group.limit }}</td>
+      <td>{{ reading_group.count_members }} / {{ reading_group.limit }}</td>
       <td>
-        <form method="post">
-          {% csrf_token %}
-          <input type="hidden" name="reading_group_id" value="{{ reading_group.id }}" />
-          <input type="submit" class="btn btn-primary" value="Join" />
-        </form>
+        {% if  reading_group.count_members >=  reading_group.limit %}
+          <p>Full</p>
+        {% else %}
+          <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="reading_group_id" value="{{ reading_group.id }}" />
+            <input type="submit" class="btn btn-primary" value="Join" />
+          </form>
+        {% endif %}
       </td>
     </tr>
     {% endfor %}

@@ -7,7 +7,7 @@
       <th scope="col">Book</th>
       <th scope="col">Date</th>
       <th scope="col">Hour</th>
-      <th scope="col">Limit</th>
+      <th scope="col">Capacity</th>
       <th scope="col">Members</th>
     </tr>
   </thead>
@@ -18,7 +18,7 @@
       <td>{{ reading_group.book }}</td>
       <td>{{ reading_group.date }}</td>
       <td>{{ reading_group.hour }}</td>
-      <td>{{ reading_group.limit }}</td>
+      <td>{{ reading_group.count_members }} / {{ reading_group.limit }}</td>
       <td><a href="{% url 'reading_group_users' library.id reading_group.id %}">See Members</a></td>
     </tr>
     {% endfor %}

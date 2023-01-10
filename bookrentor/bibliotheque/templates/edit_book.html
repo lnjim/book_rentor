@@ -1,0 +1,10 @@
+{% include 'messages.html' %}
+{% load crispy_forms_tags %}
+<h1>Update the book {{ book.title }}</h1>
+<form method="POST">
+  {% csrf_token %}
+  {{ edit_book_form|crispy }}
+  <!-- hidden input action name update_book -->
+  <input type="hidden" name="action" value="update">
+  <button class="btn btn-primary" type="submit">Update</button>
+</form>
