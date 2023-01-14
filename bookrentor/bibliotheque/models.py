@@ -5,6 +5,7 @@ from datetime import date
 # Create your models here.
 class Genre(models.Model):
     name = models.CharField(max_length=200, help_text='Enter a book genre (e.g. Science Fiction)')
+    creator = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
 
     def __str__(self):
         return self.name
@@ -12,6 +13,7 @@ class Genre(models.Model):
 class Author(models.Model):
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
+    creator = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
 
     class Meta:
         ordering = ['last_name', 'first_name']
@@ -21,6 +23,7 @@ class Author(models.Model):
 
 class Editor(models.Model):
     name = models.CharField(max_length=200)
+    creator = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
 
     def __str__(self):
         return self.name
@@ -31,12 +34,14 @@ class Book(models.Model):
     editor = models.ForeignKey('Editor', on_delete=models.CASCADE, null=True)
     summary = models.TextField(max_length=1000, help_text='Enter a brief description of the book')
     genre = models.ForeignKey('Genre', on_delete=models.CASCADE, null=True)
+    creator = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
 
     def __str__(self):
         return self.title
 
 class LibraryLocation(models.Model):
     name = models.CharField(max_length=200)
+    creator = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
 
     def __str__(self):
         return self.name
@@ -109,3 +114,15 @@ class ReadingGroupMember(models.Model):
         return f'{self.user} want to join the group {self.group}'
     def user_joined_group(self):
         return f'{self.user} joined the group {self.group}'
+
+class ChatMessage(models.Model):
+    sender = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+    receiver = models.ForeignKey('ReadingGroup', on_delete=models.CASCADE, null=True)
+    message = models.TextField(max_length=1000)
+    date = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f'{self.sender} send a message to {self.receiver} on {self.date} with the content: {self.message}'
+    
+    def display_message(self):
+        return f'{self.sender} on {self.date}: {self.message}'

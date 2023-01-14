@@ -1,48 +1,60 @@
-{% load bootstrap4 %}
-{% bootstrap_css %}
-{% bootstrap_javascript %}
-{% include 'messages.html' %}
+{% include 'header.html' %}
 <div>
   <h1>Welcome Libraire {{ user.username }}!</h1>
   <p>You are a {{ user.groups.all.0.name }}.</p>
   {% if user.is_authenticated %}      
-  <div>
+  <div class="mb-2">
     <a href="{% url 'logout' %}">Logout</a>
   </div>
-  <div>
+  <div class="mb-2">
     <a href="{% url 'new_genre' %}">Add a new genre</a>
   </div>
-  <div>
+  <div class="mb-2">
+    <a href="{% url 'genres' %}">View genres</a>
+  </div>
+  <div class="mb-2">
     <a href="{% url 'new_editor' %}">Add a new editor</a>
   </div>
-  <div>
+  <div class="mb-2">
+    <a href="{% url 'editors' %}">View editors</a>
+  </div>
+  <div class="mb-2">
     <a href="{% url 'new_author' %}">Add a new author</a>
   </div>
-  <div>
+  <div class="mb-2">
+    <a href="{% url 'authors' %}">View authors</a>
+  </div>
+  <div class="mb-2">
     <a href="{% url 'new_book' %}">Add a new book</a>
   </div>
-  <div>
+  <div class="mb-2">
+    <a href="{% url 'books' %}">View books</a>
+  </div>
+  <div class="mb-2">
     <a href="{% url 'new_library_location' %}">Add a new library location</a>
   </div>
-  <div>
+  <div class="mb-2">
+    <a href="{% url 'library_locations' %}">View library locations</a>
+  </div>
+  <div class="mb-2">
     <a href="{% url 'new_library' %}">Add a new library</a>
   </div>
-  <div>
-    <a href="{% url 'new_book_in_library' %}">Add a new book in library</a>
+  <div class="mb-2">
+    <a href="{% url 'libraries' %}">View libraries</a>
   </div>
-  <div>
-    <a href="{% url 'my_libraries' %}">View my libraries</a>
+  <div class="mb-2">
+    <a href="{% url 'new_book_in_library' %}">Add a new book in a library</a>
   </div>
-  <div>
+  <div class="mb-2">
     <a href="{% url 'pending_rent_requests' %}">View pending rent requests</a>
   </div>
-  <div>
+  <div class="mb-2">
     <a href="{% url 'update_rent_requests' %}">View rented books</a>
   </div>
-  <div>
+  <div class="mb-2">
     <a href="{% url 'late_rent_requests' %}">View late book rentals</a>
   </div>
-  <div>
+  <div class="mb-2">
     <a href="{% url 'pending_reading_group_requests' %}">View pending reading group requests</a>
   </div>
   {% endif %}

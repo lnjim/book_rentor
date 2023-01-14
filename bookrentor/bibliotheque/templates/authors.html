@@ -1,0 +1,32 @@
+{% include 'header.html' %}
+{% if authors|length == 0 %}
+  <p>There are no authors in the database.</p>
+  <a href="{% url 'new_author' %}">Add a new author</a>
+{% else %}
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th scope="col">Name</th>
+        <th scope="col">Edit</th>
+        <th scope="col">Delete</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for author in authors %}
+        <tr>
+          <td>{{ author }}</td>
+          <td>
+            <a href="{% url 'edit_author' author.id %}">Edit</a>
+          </td>
+          <td>
+            <form method="POST">
+              {% csrf_token %}
+              <input type="hidden" name="author_id" value="{{ author.id }}">
+              <button class="btn btn-link" type="submit">Delete</button>
+            </form>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endif %}

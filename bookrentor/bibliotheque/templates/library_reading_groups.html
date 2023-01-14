@@ -1,5 +1,12 @@
-{% include 'messages.html' %}
-<h1>Reanding group in the library {{ library.name }}</h1>
+{% include 'header.html' %}
+<h1>Reanding groups in the library {{ library.name }}</h1>
+<a href="{% url 'library' library.id %}">
+  <button class="btn btn-primary">Add a new reading group</button>
+</a>
+{% if reading_groups|length == 0 %}
+  <p>There are no reading groups in this library yet.</p>
+  <a href="{% url 'library' library.id %}">Add a new reading group for a book</a>
+{% else %}
 <table class="table">
   <thead>
     <tr>
@@ -9,6 +16,8 @@
       <th scope="col">Hour</th>
       <th scope="col">Capacity</th>
       <th scope="col">Members</th>
+      <th scope="col">Edit</th>
+      <th scope="col">Delete</th>
     </tr>
   </thead>
   <tbody>
@@ -20,7 +29,18 @@
       <td>{{ reading_group.hour }}</td>
       <td>{{ reading_group.count_members }} / {{ reading_group.limit }}</td>
       <td><a href="{% url 'reading_group_users' library.id reading_group.id %}">See Members</a></td>
+      <td>
+        <a href="{% url 'edit_reading_group' library.id reading_group.id %}" class="btn btn-primary">Edit</a>
+      </td>
+      <td>
+        <form method="POST">
+          {% csrf_token %}
+          <input type="hidden" name="reading_group_id" value="{{ reading_group.id }}">
+          <button class="btn btn-primary" type="submit">Delete</button>
+        </form>
+      </td>
     </tr>
     {% endfor %}
   </tbody>
 </table>
+{% endif %}

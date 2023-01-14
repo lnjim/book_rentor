@@ -1,5 +1,7 @@
 {% block content %}
 {% load crispy_forms_tags %}
+{% include 'header.html' %}
+
 <form method="POST">
   {% csrf_token %}
   {{ new_library_form|crispy }}

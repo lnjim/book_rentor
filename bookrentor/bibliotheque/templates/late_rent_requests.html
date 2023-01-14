@@ -1,13 +1,10 @@
-<!-- include messages html -->
-{% include 'messages.html' %}
+{% include 'header.html' %}
 
 <h1>Late book rentals</h1>
 
-<!-- if there are no rent requests -->
 {% if rent_requests|length == 0 %}
 <p>There are no late rentals.</p>
 {% endif %}
-<!-- if there are rent requests -->
 {% if rent_requests|length > 0 %}
 <table class="table">
   <thead>

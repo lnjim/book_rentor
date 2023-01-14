@@ -19,7 +19,7 @@ def home_client(request):
         return redirect("index_client")
     books_rented = Rent.objects.filter(user=request.user, status="ACCEPTED")
     # reading group where user is in and are in the future
-    reading_groups = ReadingGroupMember.objects.filter(user=request.user, group__date__gte=datetime.date.today())
+    reading_groups = ReadingGroupMember.objects.filter(user=request.user, group__date__gte=datetime.date.today(), status="ACCEPTED")
     return render(request=request, template_name="home_client.html", context={"user":request.user, "books_rented":books_rented, "reading_groups":reading_groups})
 
 def register_client(request):

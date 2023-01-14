@@ -1,0 +1,39 @@
+{% include 'header.html' %}
+{% if books|length == 0 %}
+  <p>There are no books in the database.</p>
+  <a href="{% url 'new_book' %}">Add a new book</a>
+{% else %}
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th scope="col">Name</th>
+        <th scope="col">Author</th>
+        <th scope="col">Genre</th>
+        <th scope="col">Editor</th>
+        <th scope="col">Summary</th>
+        <th scope="col">Edit</th>
+        <th scope="col">Delete</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for book in books %}
+        <tr>
+          <td>{{ book }}</td>
+          <td>{{ book.author }}</td>
+          <td>{{ book.genre }}</td>
+          <td>{{ book.editor }}</td>
+          <td>{{ book.summary }}</td>
+          <td>
+            <a href="{% url 'edit_book' book.id %}">Edit</a>
+          </td>
+          <td>
+            <form method="POST">
+              {% csrf_token %}
+              <button class="btn btn-link" type="submit">Delete</button>
+            </form>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endif %}

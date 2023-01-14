@@ -1,4 +1,5 @@
-{% block content %} {% load crispy_forms_tags %}
+{% block content %} {% load crispy_forms_tags %}{% include 'header.html' %}
+
 <form method="POST">
   {% csrf_token %} {{ new_book_form|crispy }}
   <button class="btn btn-primary" type="submit">Register</button>

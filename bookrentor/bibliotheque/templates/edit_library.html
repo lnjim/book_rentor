@@ -1,9 +1,8 @@
 {% include 'header.html' %}
 {% load crispy_forms_tags %}
-<h1>Update the book {{ book.title }}</h1>
+<h1>Update the library {{ library }}</h1>
 <form method="POST">
   {% csrf_token %}
-  {{ edit_book_form|crispy }}
-  <input type="hidden" name="action" value="update">
+  {{ edit_library_form|crispy }}
   <button class="btn btn-primary" type="submit">Update</button>
 </form>

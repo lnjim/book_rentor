@@ -1,0 +1,32 @@
+{% include 'header.html' %}
+{% if genres|length == 0 %}
+  <p>There are no genres in the database.</p>
+  <a href="{% url 'new_genre' %}">Add a new genre</a>
+{% else %}
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th scope="col">Name</th>
+        <th scope="col">Edit</th>
+        <th scope="col">Delete</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for genre in genres %}
+        <tr>
+          <td>{{ genre.name }}</td>
+          <td>
+            <a href="{% url 'edit_genre' genre.id %}">Edit</a>
+          </td>
+          <td>
+            <form method="POST">
+              {% csrf_token %}
+              <input type="hidden" name="genre_id" value="{{ genre.id }}">
+              <button class="btn btn-link" type="submit">Delete</button>
+            </form>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endif %}

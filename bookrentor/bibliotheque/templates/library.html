@@ -1,10 +1,10 @@
-{% include 'messages.html' %}
+{% include 'header.html' %}
 <div>
-  <h1>
-    {{ library.name }}
-    
-  </h1>
-  
+  <h1>Library: {{ library.name }}</h1>
+  {% if books|length == 0 %}
+    <p>You don't have any book in the library.</p>
+    <a href="{% url 'new_book_in_library' %}">Add a new book</a>
+  {% else %}
   <table class="table">
     <thead>
       <tr>
@@ -13,7 +13,10 @@
         <th scope="col">Editor</th>
         <th scope="col">Genre</th>
         <th scope="col">Summary</th>
-        <th scope="col">Edit</th>
+        <th scope="col">Quantity</th>
+        <th scope="col">Edit Book</th>
+        <th scope="col">Edit Book in library</th>
+        <th scope="col">Remove Book from library</th>
         <th scope="col">Create reading Group</th>
       </tr>
     </thead>
@@ -25,8 +28,20 @@
         <td>{{ book.book.editor }}</td>
         <td>{{ book.book.genre }}</td>
         <td>{{ book.book.summary }}</td>
+        <td>{{ book.quantity }}</td>
         <td>
-          <a href="{% url 'edit_book' book.book.id %}" class="btn btn-primary">Edit</a>
+          <a href="{% url 'edit_book' book.book.id %}" class="btn btn-primary">Edit Book</a>
+        </td>
+        <td>
+          <a href="{% url 'edit_book_in_library' library.id book.book.id %}" class="btn btn-primary">Edit Book in library</a>
+        </td>
+        <td>
+          <form method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="book_id" value="{{ book.book.id }}">
+            <button class="btn btn-primary" type="submit">remove Book in library</button>
+          </form>
+        </td>
         <td>
           <a href="{% url 'new_reading_group' library.id book.book.id %}" class="btn btn-primary">Create</a>
         </td>
@@ -34,4 +49,5 @@
       {% endfor %}
     </tbody>
   </table>
+  {% endif %}
 </div>
