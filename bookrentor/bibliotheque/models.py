@@ -115,14 +115,21 @@ class ReadingGroupMember(models.Model):
     def user_joined_group(self):
         return f'{self.user} joined the group {self.group}'
 
-class ChatMessage(models.Model):
+class Channel(models.Model):
+    user1 = models.ForeignKey(User, on_delete=models.CASCADE, null=True, related_name='user1')
+    user2 = models.ForeignKey(User, on_delete=models.CASCADE, null=True, related_name='user2')
+
+    def __str__(self):
+        return f'channel between {self.user1} and {self.user2}'
+
+class Message(models.Model):
+    channel = models.ForeignKey('Channel', on_delete=models.CASCADE, null=True)
     sender = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
-    receiver = models.ForeignKey('ReadingGroup', on_delete=models.CASCADE, null=True)
     message = models.TextField(max_length=1000)
     date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f'{self.sender} send a message to {self.receiver} on {self.date} with the content: {self.message}'
+        return f'{self.sender} send a message to {self.channel} on {self.date} with the content: {self.message}'
     
     def display_message(self):
         return f'{self.sender} on {self.date}: {self.message}'

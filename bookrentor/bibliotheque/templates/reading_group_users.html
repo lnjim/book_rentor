@@ -21,12 +21,20 @@
         <td>
           <form method="post">
             {% csrf_token %}
+            <input type="hidden" name="action" value="remove_member">
             <input type="hidden" name="user_id" value="{{ reading_group_member.user.id }}">
             <input type="hidden" name="reading_group_id" value="{{ reading_group.id }}">
             <input type="submit" value="Remove" class="btn btn-danger">
           </form>
         </td>
-        <td>Send a message</td>
+        <td>
+          <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="create_channel">
+            <input type="hidden" name="user_id" value="{{ reading_group_member.user.id }}">
+            <input type="submit" value="Send a message" class="btn btn-primary">
+          </form>
+        </td>
       </tr>
       {% endfor %}
     </tbody>

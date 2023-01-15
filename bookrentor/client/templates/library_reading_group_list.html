@@ -1,5 +1,8 @@
-{% include 'messages.html' %}
+{% include 'header.html' %}
 <h1>Reanding group in the library {{ library.name }}</h1>
+{% if reading_groups|length == 0 %}
+  <p>There are no reading groups in this library.</p>
+{% else %}
 <table class="table">
   <thead>
     <tr>
@@ -33,4 +36,4 @@
     </tr>
     {% endfor %}
   </tbody>
-</table>
+</table>{% endif %}

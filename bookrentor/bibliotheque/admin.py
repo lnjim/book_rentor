@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Genre, Editor, Author, Book, Library, BooksInLibrary, LibraryLocation, Rent, ReadingGroup, ReadingGroupMember, ChatMessage
+from .models import Genre, Editor, Author, Book, Library, BooksInLibrary, LibraryLocation, Rent, ReadingGroup, ReadingGroupMember, Channel, Message
 
 admin.site.register(Genre)
 admin.site.register(Editor)
@@ -11,4 +11,5 @@ admin.site.register(LibraryLocation)
 admin.site.register(Rent)
 admin.site.register(ReadingGroup)
 admin.site.register(ReadingGroupMember)
-admin.site.register(ChatMessage)
+admin.site.register(Channel)
+admin.site.register(Message)

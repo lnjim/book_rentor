@@ -37,4 +37,6 @@ urlpatterns = [
     path('edit/library/<int:library_id>/reading_group/<int:reading_group_id>/', views.edit_reading_group, name='edit_reading_group'),
     path('pending_reading_group_requests/', views.pending_reading_group_requests, name='pending_reading_group_requests'),
     path('my_libraries/<int:library_id>/reading_groups/<int:reading_group_id>/reading_group_users/', views.reading_group_users, name='reading_group_users'),
+    path('channels/', views.channels, name='channels'),
+    path('user/messages/<int:channel_id>/message/', views.message, name='messages'),
 ]

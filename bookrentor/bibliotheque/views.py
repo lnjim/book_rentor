@@ -6,14 +6,17 @@ from django.contrib.auth.forms import AuthenticationForm
 import pdb
 from django.contrib.auth.models import Group, User
 from .forms import NewUserForm, NewGenreForm, NewEditorForm, NewAuthorForm, NewBookForm, NewLibraryForm, NewBookInLibraryForm, NewLibraryLocationForm, NewReadingGroupForm
-from .models import Genre, Editor, Author, Book, Library, BooksInLibrary, LibraryLocation, Rent, ReadingGroup, ReadingGroupMember
+from .models import Genre, Editor, Author, Book, Library, BooksInLibrary, LibraryLocation, Rent, ReadingGroup, ReadingGroupMember, Channel, Message
 import datetime
+from django.db.models import Q
 
 def index(request):
     return render(request=request, template_name="index.html")
 
 def home(request):
     if not request.user.is_authenticated:
+        return redirect("index")
+    if not request.user.groups.filter(name='book_seller').exists():
         return redirect("index")
     return render(request=request, template_name="home.html", context={"user":request.user})
 
@@ -44,6 +47,8 @@ def login_user(request):
                     login(request, user)
                     messages.info(request, f"You are now logged in as {username}.")
                     return redirect("home")
+                else:
+                    messages.error(request, "You are not a book seller.")
             else:
                 messages.error(request, "Invalid username or password.")
         else:
@@ -559,13 +564,41 @@ def reading_group_users(request, library_id, reading_group_id):
     if not request.user.groups.filter(name='book_seller').exists():
         return redirect("index")
     if request.method == 'POST':
-        reading_group_member = ReadingGroupMember.objects.get(group__id=request.POST['reading_group_id'], user=request.POST['user_id'])
-        reading_group_member.delete()
-        messages.success(request, 'User removed from reading group')
-        return redirect("reading_group_users", library_id=library_id, reading_group_id=reading_group_id)
+        if request.POST['action'] == 'remove_member':
+            reading_group_member = ReadingGroupMember.objects.get(group__id=request.POST['reading_group_id'], user=request.POST['user_id'])
+            reading_group_member.delete()
+            messages.success(request, 'User removed from reading group')
+            return redirect("reading_group_users", library_id=library_id, reading_group_id=reading_group_id)
+        elif request.POST['action'] == 'create_channel':
+            if Channel.objects.filter(user1=request.user, user2=User.objects.get(id=request.POST['user_id'])).count() > 0 or Channel.objects.filter(user1=User.objects.get(id=request.POST['user_id']), user2=request.user).count() > 0:
+                channel = Channel.objects.filter(Q(user1=request.user, user2__id=request.POST['user_id']) | Q(user1__id=request.POST['user_id'], user2=request.user)).first()
+                return redirect("messages", channel_id=channel.id)
+            else:
+                channel = Channel.objects.create(user1=request.user, user2=User.objects.get(id=request.POST['user_id']))
+                channel.save()
+                messages.success(request, 'Start your new conversation')
+                return redirect("messages", channel_id=channel.id)
     library = Library.objects.get(id=library_id)
     reading_group = ReadingGroup.objects.get(id=reading_group_id)
     reading_group_members = ReadingGroupMember.objects.filter(group__id=reading_group_id, status='ACCEPTED')
     return render(request=request, template_name="reading_group_users.html", context={"reading_group_members":reading_group_members, "reading_group":reading_group, "library":library})
 
+def channels(request):
+    if not request.user.is_authenticated:
+        return redirect("index")
+    if not request.user.groups.filter(name='book_seller').exists():
+        return redirect("index")
+    channels = Channel.objects.filter(Q(user1=request.user) | Q(user2=request.user))
+    # get last message for each channel
+    for channel in channels:
+        channel.last_message = Message.objects.filter(channel=channel).order_by('-date').first()
+    return render(request=request, template_name="channels.html", context={"channels":channels})
 
+def message(request, channel_id):
+    if not request.user.is_authenticated:
+        return redirect("index")
+    if not request.user.groups.filter(name='book_seller').exists():
+        return redirect("index")
+    channel = Channel.objects.get(id=channel_id)
+    messages = Message.objects.filter(channel=channel).order_by('-date')
+    return render(request=request, template_name="message.html", context={"messages":messages, "channel":channel})
