@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.contrib.auth.forms import AuthenticationForm
 import pdb
 from django.contrib.auth.models import Group, User
-from .forms import NewUserForm, NewGenreForm, NewEditorForm, NewAuthorForm, NewBookForm, NewLibraryForm, NewBookInLibraryForm, NewLibraryLocationForm, NewReadingGroupForm
+from .forms import NewUserForm, NewGenreForm, NewEditorForm, NewAuthorForm, NewBookForm, NewLibraryForm, NewBookInLibraryForm, NewLibraryLocationForm, NewReadingGroupForm, NewMessageForm
 from .models import Genre, Editor, Author, Book, Library, BooksInLibrary, LibraryLocation, Rent, ReadingGroup, ReadingGroupMember, Channel, Message
 import datetime
 from django.db.models import Q
@@ -589,9 +589,8 @@ def channels(request):
     if not request.user.groups.filter(name='book_seller').exists():
         return redirect("index")
     channels = Channel.objects.filter(Q(user1=request.user) | Q(user2=request.user))
-    # get last message for each channel
     for channel in channels:
-        channel.last_message = Message.objects.filter(channel=channel).order_by('-date').first()
+        channel.last_message = Message.objects.filter(channel=channel).order_by('date').first()
     return render(request=request, template_name="channels.html", context={"channels":channels})
 
 def message(request, channel_id):
@@ -599,6 +598,17 @@ def message(request, channel_id):
         return redirect("index")
     if not request.user.groups.filter(name='book_seller').exists():
         return redirect("index")
+    if request.method == 'POST':
+        form = NewMessageForm(request.POST)
+        if form.is_valid():
+            current_channel = Channel.objects.get(id=channel_id)
+            message = Message.objects.create(channel=current_channel, sender=request.user, message=form.cleaned_data['message'], date=datetime.datetime.now())
+            message.save()
+            return redirect("messages", channel_id=channel_id)
+        else:
+            messages.error(request, 'Invalid form')
+            return redirect("home")
     channel = Channel.objects.get(id=channel_id)
-    messages = Message.objects.filter(channel=channel).order_by('-date')
-    return render(request=request, template_name="message.html", context={"messages":messages, "channel":channel})
+    conversations = Message.objects.filter(channel=channel).order_by('date')
+    form = NewMessageForm()
+    return render(request=request, template_name="message.html", context={"conversations":conversations, "channel":channel, "new_message_form":form})

@@ -1,12 +1,13 @@
-{% include 'header.html' %}
+{% include 'header_client.html' %}
 <h1>Conversations</h1>
 {% if channels|length == 0 %}
   <p>No channels yet.</p>
 {% else %}
+  <p>Channels:</p>
   {% for channel in channels %}
     <div class="card">
       <div class="card-body">
-        <a href="{% url 'messages' channel.id %}">{{ channel }}</a>
+        <a href="{% url 'messages_client' channel.id %}">{{ channel }}</a>
       </div>
     </div>
   {% endfor %}

@@ -55,3 +55,6 @@ class NewReadingGroupForm(forms.Form):
         widget=forms.TimeInput(attrs={'type': 'time'})
     )
     limit = forms.IntegerField()
+
+class NewMessageForm(forms.Form):
+    message = forms.CharField(widget=forms.Textarea)

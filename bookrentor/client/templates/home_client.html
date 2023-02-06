@@ -1,7 +1,4 @@
-{% load bootstrap4 %}
-{% bootstrap_css %}
-{% bootstrap_javascript %}
-{% include 'messages.html' %}
+{% include 'header_client.html' %}
 <div>
   <h1>Welcome Client {{ user.username }}!</h1>
   <p>You are a {{ user.groups.all.0.name }}.</p>
@@ -19,6 +16,9 @@
     </div>
     <div>
       <a href="{% url 'search_book' %}">Search a book</a>
+    </div>
+    <div>
+      <a href="{% url 'channels_client' %}">Conversations</a>
     </div>
     {% if books_rented|length == 0 %}
       <p>You have no rented books.</p>

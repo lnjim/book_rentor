@@ -4,9 +4,12 @@ from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.models import Group
 from django.contrib import messages
 from django.contrib.auth.forms import AuthenticationForm
-from bibliotheque.models import Book, Library, BooksInLibrary, Rent, ReadingGroup, ReadingGroupMember
+from bibliotheque.models import Book, Library, BooksInLibrary, Rent, ReadingGroup, ReadingGroupMember, Channel, Message
 from .forms import NewRentBookForm, SearchBookForm, SearchLibraryForm
+# import forms from bibliotheque
+from bibliotheque.forms import NewMessageForm
 import datetime
+from django.db.models import Q
 import pdb
 
 def index_client(request):
@@ -184,3 +187,33 @@ def reading_group_request_list(request):
         return redirect("index_client")
     reading_group_requests = ReadingGroupMember.objects.filter(user=request.user)
     return render(request=request, template_name="reading_group_request_list.html", context={"reading_group_requests":reading_group_requests})
+
+def channels_client(request):
+    if not request.user.is_authenticated:
+        return redirect("index")
+    if not request.user.groups.filter(name='user').exists():
+        return redirect("index")
+    channels = Channel.objects.filter(Q(user1=request.user) | Q(user2=request.user))
+    for channel in channels:
+        channel.last_message = Message.objects.filter(channel=channel).order_by('date').first()
+    return render(request=request, template_name="channels_client.html", context={"channels":channels})
+
+def message_client(request, channel_id):
+    if not request.user.is_authenticated:
+        return redirect("index")
+    if not request.user.groups.filter(name='user').exists():
+        return redirect("index")
+    if request.method == 'POST':
+        form = NewMessageForm(request.POST)
+        if form.is_valid():
+            current_channel = Channel.objects.get(id=channel_id)
+            message = Message.objects.create(channel=current_channel, sender=request.user, message=form.cleaned_data['message'], date=datetime.datetime.now())
+            message.save()
+            return redirect("messages_client", channel_id=channel_id)
+        else:
+            messages.error(request, 'Invalid form')
+            return redirect("home")
+    channel = Channel.objects.get(id=channel_id)
+    conversations = Message.objects.filter(channel=channel).order_by('date')
+    form = NewMessageForm()
+    return render(request=request, template_name="message_client.html", context={"conversations":conversations, "channel":channel, "new_message_form":form})

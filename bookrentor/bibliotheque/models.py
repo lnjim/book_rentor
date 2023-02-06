@@ -120,7 +120,7 @@ class Channel(models.Model):
     user2 = models.ForeignKey(User, on_delete=models.CASCADE, null=True, related_name='user2')
 
     def __str__(self):
-        return f'channel between {self.user1} and {self.user2}'
+        return f'conversation between {self.user1} and {self.user2}'
 
 class Message(models.Model):
     channel = models.ForeignKey('Channel', on_delete=models.CASCADE, null=True)
@@ -129,7 +129,7 @@ class Message(models.Model):
     date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f'{self.sender} send a message to {self.channel} on {self.date} with the content: {self.message}'
+        return f'{self.sender}: {self.message}'
     
     def display_message(self):
         return f'{self.sender} on {self.date}: {self.message}'

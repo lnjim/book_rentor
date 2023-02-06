@@ -14,4 +14,6 @@ urlpatterns = [
     path('search_book/', views.search_book, name='search_book'),
     path('library/<int:library_id>/library_reading_group_list/', views.library_reading_group_list, name='library_reading_group_list'),
     path('reading_group_request_list/', views.reading_group_request_list, name='reading_group_request_list'),
+    path('channels/', views.channels_client, name='channels_client'),
+    path('channels/<int:channel_id>/message/', views.message_client, name='messages_client'),
 ]

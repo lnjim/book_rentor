@@ -1,8 +1,9 @@
-{% include 'header.html' %}
+{% include 'header_client.html' %}
 {% load crispy_forms_tags %}
 {% if conversations|length == 0 %}
   <p>No messages yet.</p>
 {% else %}
+  <p>Messages:</p>
   {% for message in conversations %}
     <div class="card">
       <div class="card-body">
